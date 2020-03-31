@@ -1,8 +1,0 @@
-## Title: RoleplayChatBubbles
-## Version: 1.0
-## Author: Christopher Tse
-## Interface: 80300
-## OptionalDeps: totalRP3
-
-ChatBubblePool.lua
-MainFrame.xml
