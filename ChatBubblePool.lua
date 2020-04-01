@@ -49,10 +49,10 @@ end
 
 local function pickNameColor(chatBubble)
 	local r, g, b = chatBubble:GetNameColor()
-	ColorPickerFrame:SetColorRGB(r,g,b);
 	ColorPickerFrame.hasOpacity = false;
 	ColorPickerFrame.func = function(self) chatBubble:SetNameColor(ColorPickerFrame:GetColorRGB()) end;
 	ColorPickerFrame.cancelFunc = function(self) chatBubble:SetNameColor(r,g,b) end;
+	ColorPickerFrame:SetColorRGB(r,g,b);
 	ColorPickerFrame:Show();
 end
 
@@ -60,8 +60,10 @@ local function closeBubble(chatBubble)
 	chatBubble:Hide();
 	chatBubble:SetMessage("");
 	chatBubble:SetName("");
+
 	chatBubble.nameBox:SetAlpha(0.01)
 	chatBubble:ClearAllPoints();
+	chatBubble:ResetNameColor();
 	chatBubble:SetPoint("TOPLEFT",WorldFrame,"CENTER",-chatBubble.center.x,-chatBubble.center.y);
 	chatBubble.isAvailable = true;
 end
@@ -117,13 +119,13 @@ function ChatBubblePool.getChatBubble()
 		tile=true, tileSize=16, edgeSize=16, 
 		insets={left=16, right=16, top=16, bottom=16}
 	})
-	chatBubbleBackground:EnableMouse(true)
-	chatBubbleBackground:SetPoint("TOPLEFT",editBox,"TOPLEFT",-16,16)
-	chatBubbleBackground:SetPoint("BOTTOMLEFT",editBox,"BOTTOMLEFT",-16,-16)
+	chatBubbleBackground:EnableMouse(true);
+	chatBubbleBackground:SetPoint("TOPLEFT",editBox,"TOPLEFT",-16,16);
+	chatBubbleBackground:SetPoint("BOTTOMLEFT",editBox,"BOTTOMLEFT",-16,-16);
 	chatBubbleBackground.padding = 32;
-	chatBubbleBackground:SetWidth(64 + chatBubbleBackground.padding)
-	chatBubbleBackground:SetFrameStrata("BACKGROUND")
-	chatBubbleBackground:EnableMouse(true)
+	chatBubbleBackground:SetWidth(64 + chatBubbleBackground.padding);
+	chatBubbleBackground:SetFrameStrata("BACKGROUND");
+	chatBubbleBackground:EnableMouse(true);
 	chatBubbleBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
 	chatBubbleBackground:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
 	editBox.background = chatBubbleBackground;
@@ -235,6 +237,9 @@ function ChatBubblePool.getChatBubble()
 	newChatBubble.SetMessage = function(self,message) editBox:SetText(message) end;
 	newChatBubble.GetNameColor = function(self) return nameBox:GetTextColor() end;
 	newChatBubble.SetNameColor = function(self,r,g,b) nameBox:SetTextColor(r,g,b) nameBox.colorPickerTex:SetColorTexture(r,g,b) end;
+
+	local origR,origG,origB = nameBox:GetTextColor();
+	newChatBubble.ResetNameColor = function(self) self:SetNameColor(origR,origG,origB); end;
 
 	return newChatBubble
 end

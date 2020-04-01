@@ -70,7 +70,7 @@ local function skinBubble(chatBubble)
 	NameText:SetFrameStrata("MEDIUM"); --This is the default but better to be explicit
 	--NameText:SetMultiLine(true);
 	NameText:SetAutoFocus(false);
-	--NameText:EnableMouse(false);
+	NameText:EnableMouse(false);
 	NameText:SetSize(700,11);
 	--NameText:SetPoint("CENTER");
 	NameText:SetPoint("BOTTOMLEFT",chatBubble,"TOPLEFT",13,2);
@@ -104,22 +104,25 @@ local function skinBubble(chatBubble)
 
 	local relativeTo, relativePoint, xOfs, yOfs = getNamedPoint(chatBubble,"BOTTOMRIGHT");
 	chatBubble.string = relativeTo;
+	--chatBubble.string:SetJustifyH("LEFT");
 	chatBubble.defaultXOfs = xOfs;
 	chatBubble.fixWidth = function(self)
 		local nameWidth = NameText.stringMeasure:GetWidth();
 		NameBg:SetWidth(nameWidth);
-		local stringWidth = self.string:GetStringWidth();
+		local stringWidth = self.string:GetWidth();
 		local expectedWidth = stringWidth + 32;
-		local requiredWidthForName = nameWidth + 14 + 2 + 16;
+		local requiredWidthForName = nameWidth + 13 + 2 + 16;
 		local defaultXOfs = self.defaultXOfs;
 		local relativeTo, relativePoint, xOfs, yOfs = getNamedPoint(self,"BOTTOMRIGHT");
 		local currHeight = self:GetHeight();
 		if ( expectedWidth < requiredWidthForName ) then
-			local diff = requiredWidthForName - expectedWidth;
-			self:SetPoint("BOTTOMRIGHT",relativeTo,relativePoint,defaultXOfs+diff,yOfs);
+			local adj = (requiredWidthForName - expectedWidth)/2;
+			self:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-(defaultXOfs+adj),-yOfs);
+			self:SetPoint("BOTTOMRIGHT",relativeTo,"BOTTOMRIGHT",defaultXOfs+adj,yOfs);
 		else
+			self:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-defaultXOfs,-yOfs);
 			self:SetPoint("BOTTOMRIGHT",relativeTo,relativePoint,defaultXOfs,yOfs);
-		end 
+		end
 	end
 	chatBubble:fixWidth();
 
