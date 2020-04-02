@@ -44,7 +44,6 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 
 						actualMessage = color .. actualMessage;
 						local chatBubble = RPChatBubbles_createChatBubble()
-						print("NPC Talk Found! npcName="..npcName);
 						chatBubble:SetName(npcName);
 						chatBubble:SetMessage(actualMessage);
 						if nameColor then
