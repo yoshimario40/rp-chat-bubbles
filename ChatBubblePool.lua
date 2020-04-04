@@ -65,6 +65,7 @@ local function closeBubble(chatBubble)
 	chatBubble:ClearAllPoints();
 	chatBubble:ResetNameColor();
 	chatBubble:SetPoint("TOPLEFT",WorldFrame,"CENTER",-chatBubble.center.x,-chatBubble.center.y);
+	chatBubble.tail:Reset();
 	chatBubble.isAvailable = true;
 end
 
@@ -318,7 +319,12 @@ function ChatBubblePool.getChatBubble()
 	chatBubbleTail.rightOffset = -3;
 	chatBubbleTail.minX = 8;
 	chatBubbleTail.minY = 8;
-
+	chatBubbleTail.Reset = function(self) 
+		self.tex:SetRotation(0);
+		self:ClearAllPoints();
+		self:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3);
+	end
+	newChatBubble.tail = chatBubbleTail;
 
 	--Functions for outside use
 	newChatBubble.GetName = nameBox.GetText;
