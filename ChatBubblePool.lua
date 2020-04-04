@@ -68,6 +68,87 @@ local function closeBubble(chatBubble)
 	chatBubble.isAvailable = true;
 end
 
+local function getClosestEdge(tail,bubble,cursorX,cursorY)
+	local centerX, centerY = bubble:GetCenter()
+	local bubbleGradient = bubble:GetHeight() / bubble:GetWidth();
+	--This calculates the vector from the center of the bubble to the cursor co-oridinates. 
+	local localCursorX, localCursorY = cursorX - centerX, cursorY - centerY;
+	if localCursorX >= 0 and localCursorX * bubbleGradient > math.abs(localCursorY) then
+		return "RIGHT", "BOTTOMLEFT", "BOTTOMRIGHT";
+	elseif localCursorX < 0 and -localCursorX * bubbleGradient > math.abs(localCursorY) then
+		return "LEFT", "BOTTOMRIGHT", "BOTTOMLEFT";
+	elseif localCursorY >= 0 and localCursorY > math.abs(localCursorX) * bubbleGradient then
+		return "TOP", "BOTTOMLEFT","TOPLEFT";
+	else
+		return "BOTTOM", "TOPLEFT", "BOTTOMLEFT";
+	end
+end
+
+local function moveTail(tail)
+	--Note: Since the chat bubble is anchored to the WorldFrame, we shouldn't adjust for UIParent's scale
+	local cursorX, cursorY = GetCursorPosition();  
+	local origPoint = tail.origPoint;
+	local bubble = tail:GetParent();
+	local tailWidth, tailHeight = tail:GetWidth(), tail:GetHeight();
+	local bubbleWidth, bubbleHeight = bubble:GetWidth(), bubble:GetHeight();
+	local closestEdge, point, anchoringPoint = getClosestEdge(tail,bubble,cursorX,cursorY);
+	if closestEdge == "BOTTOM" or closestEdge == "TOP" then
+		local offset = cursorX - tail.origCursorLoc.x
+		local newX = origPoint.x + offset;
+		if newX < tail.minX  then
+			newX = tail.minX
+		elseif newX > bubbleWidth - tailWidth - tail.minX then
+			newX = bubbleWidth - tailWidth - tail.minX
+		end
+		local yOffset = 0;
+		if closestEdge == "BOTTOM" then
+			yOffset = tail.bottomOffset;
+			tail.tex:SetRotation(0);
+		else
+			yOffset = tail.topOffset;
+			tail.tex:SetRotation(math.pi)
+		end 
+		tail:ClearAllPoints();
+		tail:SetPoint(point,bubble,anchoringPoint,newX,yOffset);
+	else
+		local offset = cursorY - tail.origCursorLoc.y
+		local newY = origPoint.y + offset;
+		if newY < tail.minY then
+			newY = tail.minY
+		elseif newY > bubbleHeight - tailHeight - tail.minY then
+			newY = bubbleHeight - tailHeight - tail.minY
+		end
+		local xOffset = 0;
+		if closestEdge == "LEFT" then
+			xOffset = tail.leftOffset;
+			tail.tex:SetRotation(math.pi * 1.5 ); 
+		else 
+			xOffset = tail.rightOffset;
+			tail.tex:SetRotation(math.pi * 0.5);
+		end
+		tail:ClearAllPoints();
+		tail:SetPoint(point,bubble,anchoringPoint,xOffset,newY);
+	end
+end 
+
+local function startMovingTail(self, button)
+	if button == "LeftButton" then
+		local origCursor = {};
+		local origPoint = {};
+		origCursor.x, origCursor.y = GetCursorPosition();
+		origPoint.p, origPoint.relative, origPoint.relativeP, origPoint.x, origPoint.y = self:GetPoint(1);
+		self.origPoint = origPoint;
+		self.origCursorLoc = origCursor;
+		self:SetScript("OnUpdate",moveTail);
+	end
+end
+
+local function stopMovingTail(self,button)
+	if button == "LeftButton" then
+		self:SetScript("OnUpdate",nil);
+	end 
+end
+
 function ChatBubblePool.getChatBubble()
 	for index, chatBubble in ipairs(pool) do
 		if chatBubble.isAvailable then
@@ -224,11 +305,20 @@ function ChatBubblePool.getChatBubble()
 	rightTex:SetPoint("BOTTOMLEFT",midTex,"BOTTOMRIGHT");
 	
 	local chatBubbleTail = CreateFrame("Frame",frameName.."-tail",chatBubbleBackground)
-	chatBubbleTail:SetBackdrop({
-		bgFile="Interface\\Tooltips\\CHATBUBBLE-TAIL.BLP"
-	})
 	chatBubbleTail:SetSize(16,16)
 	chatBubbleTail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3)
+	chatBubbleTail.tex = chatBubbleTail:CreateTexture(frameName.."-tailTexture","BACKGROUND");
+	chatBubbleTail.tex:SetTexture("Interface\\Tooltips\\CHATBUBBLE-TAIL.BLP");
+	chatBubbleTail.tex:SetAllPoints();
+	chatBubbleTail:SetScript("OnMouseDown",startMovingTail);
+	chatBubbleTail:SetScript("OnMouseUp",stopMovingTail);
+	chatBubbleTail.bottomOffset = 3;
+	chatBubbleTail.topOffset = -3;
+	chatBubbleTail.leftOffset = 3;
+	chatBubbleTail.rightOffset = -3;
+	chatBubbleTail.minX = 8;
+	chatBubbleTail.minY = 8;
+
 
 	--Functions for outside use
 	newChatBubble.GetName = nameBox.GetText;
