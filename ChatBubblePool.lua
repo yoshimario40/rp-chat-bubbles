@@ -70,7 +70,7 @@ local function closeBubble(chatBubble)
 	chatBubble.nameBox:SetAlpha(0.01)
 	chatBubble:ClearAllPoints();
 	chatBubble:ResetNameColor();
-	chatBubble:SetPoint("TOPLEFT",WorldFrame,"CENTER",-chatBubble.center.x,-chatBubble.center.y);
+	chatBubble:SetPoint("TOP",WorldFrame,"CENTER",0,-chatBubble.center.y);
 	chatBubble.tail:Reset();
 	chatBubble.isAvailable = true;
 end
@@ -184,7 +184,7 @@ function ChatBubblePool.getChatBubble()
 
 	local editBox = CreateFrame("EditBox",frameName.."-EditBox",newChatBubble);
 	editBox:SetPoint("TOPLEFT",newChatBubble);
-	editBox:SetPoint("TOPRIGHT",newChatBubble);
+	editBox:SetPoint("TOPRIGHT",newChatBubble); 
 	editBox:SetMultiLine(true);
 	editBox:SetAutoFocus(false);
 	editBox:SetFontObject("ChatBubbleFont");
@@ -231,10 +231,11 @@ function ChatBubblePool.getChatBubble()
 
 	--This is a hack that centers the newChatBubble using the center of the editbox
 	newChatBubble.center = { x=chatBubbleBackground:GetWidth()/2, y=chatBubbleBackground:GetHeight()/2 };
-	newChatBubble:SetPoint("TOPLEFT",WorldFrame,"CENTER",-newChatBubble.center.x,newChatBubble.center.y);
+	newChatBubble:SetPoint("TOP",WorldFrame,"CENTER",0,newChatBubble.center.y);
 
 
 	local closeButton = CreateFrame("Button",frameName.."-CloseButton",chatBubbleBackground,"UIPanelCloseButton")
+	closeButton:SetFrameStrata("LOW");
 	closeButton:SetPoint("CENTER",chatBubbleBackground,"TOPRIGHT",-4,-4);
 	closeButton:SetScript("OnClick",function(self) closeBubble(newChatBubble) end);
 	closeButton:SetScript("OnEnter",function(self) closeButton:SetAlpha(1) end);
