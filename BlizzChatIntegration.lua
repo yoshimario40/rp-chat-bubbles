@@ -139,11 +139,14 @@ end
 local function checkBubbles(chatBubbles)
 	--chatBubbles is an indexed array of frames
 	for _, chatBubble in pairs(chatBubbles) do
-		if not chatBubble.rpSkinned then
-			skinBubble(chatBubble)
-		else
-			local message = getChatBubbleText(chatBubble)
-			chatBubble:SetName(messageToSender[message])
+		--7.2.5 disabled chatbubble skinning in dungeons and raids
+		if not chatBubble:IsForbidden() then
+			if not chatBubble.rpSkinned then
+				skinBubble(chatBubble)
+			else
+				local message = getChatBubbleText(chatBubble)
+				chatBubble:SetName(messageToSender[message])
+			end
 		end
 	end
 end
