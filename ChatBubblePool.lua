@@ -8,6 +8,12 @@ local pool = {}
 Import.ChatBubblePool = {};
 local ChatBubblePool = Import.ChatBubblePool
 
+local function setChatBubbleWidth(chatBubbleBg, parent, width)
+	chatBubbleBg:SetPoint("TOPLEFT",parent,"TOP",-width/2,16);
+	chatBubbleBg:SetPoint("BOTTOMLEFT",parent,"BOTTOM",-width/2,-16);
+	chatBubbleBg:SetWidth(width);
+end 
+
 local function adjustChatBubbleWidth(chatBubble)
 	local editBox = chatBubble.editBox;
 	local strWidth = editBox.stringMeasure:GetStringWidth();
@@ -17,16 +23,16 @@ local function adjustChatBubbleWidth(chatBubble)
 	local nameBoxWidth = nameBox:GetFullWidth();
 	local minWidth = 64;
 	if ( nameBoxWidth ~= nil) then
-		local nameBoxMargin = nameBox.margin.L + nameBox.margin.R;
+		local nameBoxMargin = nameBox.margin.L + nameBox.margin.R - nameBox.padding.L - 5;
 		minWidth = max(64, nameBoxWidth + nameBoxMargin);
 	end
 	local maxWidth = chatBubble:GetWidth()
 	if ( strWidth < minWidth ) then
-		bg:SetWidth(minWidth + padding)
+		setChatBubbleWidth(bg, editBox, minWidth + padding);
 	elseif ( minWidth < strWidth and strWidth < maxWidth ) then
-		bg:SetWidth(strWidth + padding)
+		setChatBubbleWidth(bg, editBox, strWidth+padding);
 	else
-		bg:SetWidth(maxWidth + padding ) 
+		setChatBubbleWidth(bg, editBox, maxWidth + padding);
 	end
 end
 
@@ -182,7 +188,9 @@ function ChatBubblePool.getChatBubble()
 	editBox:SetMultiLine(true);
 	editBox:SetAutoFocus(false);
 	editBox:SetFontObject("ChatBubbleFont");
-	editBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end);
+	editBox:SetJustifyH("CENTER");
+	editBox:EnableMouse(false); --We'll use a button overlaid over the background to catch mouse events instead
+	editBox:SetScript("OnEnterPressed", function(self) if IsShiftKeyDown() then self:Insert("\n") else self:ClearFocus() end end);
 	editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end);
 	--Apparently, the below code stops the user from being able to change the cursor location
 	--editBox:EnableMouse(true)
@@ -190,9 +198,6 @@ function ChatBubblePool.getChatBubble()
 	--editBox:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
 
 	newChatBubble.editBox = editBox;
-	--This is a hack that centers the newChatBubble using the center of the editbox
-	newChatBubble.center = { x=editBox:GetWidth()/2, y=editBox:GetHeight()/2 };
-	newChatBubble:SetPoint("TOPLEFT",WorldFrame,"CENTER",-newChatBubble.center.x,-newChatBubble.center.y);
 
 	local chatBubbleBackground = CreateFrame("Frame",frameName.."Background",editBox);
 	chatBubbleBackground:SetBackdrop({
@@ -202,14 +207,17 @@ function ChatBubblePool.getChatBubble()
 		insets={left=16, right=16, top=16, bottom=16}
 	})
 	chatBubbleBackground:EnableMouse(true);
-	chatBubbleBackground:SetPoint("TOPLEFT",editBox,"TOPLEFT",-16,16);
-	chatBubbleBackground:SetPoint("BOTTOMLEFT",editBox,"BOTTOMLEFT",-16,-16);
+	chatBubbleBackground:SetPoint("TOPLEFT",editBox,"CENTER",-16,16);
+	chatBubbleBackground:SetPoint("BOTTOMLEFT",editBox,"CENTER",-16,-16);
 	chatBubbleBackground.padding = 32;
 	chatBubbleBackground:SetWidth(64 + chatBubbleBackground.padding);
 	chatBubbleBackground:SetFrameStrata("BACKGROUND");
-	chatBubbleBackground:EnableMouse(true);
-	chatBubbleBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
-	chatBubbleBackground:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
+
+	local chatBubbleMouseCatcher = CreateFrame("Button",frameName.."-MouseCatcher",chatBubbleBackground);
+	chatBubbleMouseCatcher:SetAllPoints();
+	chatBubbleMouseCatcher:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
+	chatBubbleMouseCatcher:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
+	chatBubbleMouseCatcher:SetScript("OnClick", function(self) editBox:SetFocus() end);
 	editBox.background = chatBubbleBackground;
 
 	--This part of the code makes the editbox and the background grow up to 300px as the text grows.
@@ -220,6 +228,11 @@ function ChatBubblePool.getChatBubble()
 	    editBox.stringMeasure:SetText(self:GetText());
 		adjustChatBubbleWidth(newChatBubble);
 	end)
+
+	--This is a hack that centers the newChatBubble using the center of the editbox
+	newChatBubble.center = { x=chatBubbleBackground:GetWidth()/2, y=chatBubbleBackground:GetHeight()/2 };
+	newChatBubble:SetPoint("TOPLEFT",WorldFrame,"CENTER",-newChatBubble.center.x,newChatBubble.center.y);
+
 
 	local closeButton = CreateFrame("Button",frameName.."-CloseButton",chatBubbleBackground,"UIPanelCloseButton")
 	closeButton:SetPoint("CENTER",chatBubbleBackground,"TOPRIGHT",-4,-4);
