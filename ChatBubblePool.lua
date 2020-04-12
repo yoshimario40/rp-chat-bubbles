@@ -30,7 +30,7 @@ local function adjustChatBubbleWidth(chatBubble)
 	if ( strWidth < minWidth ) then
 		setChatBubbleWidth(bg, editBox, minWidth + padding);
 	elseif ( minWidth < strWidth and strWidth < maxWidth ) then
-		setChatBubbleWidth(bg, editBox, strWidth+padding);
+		setChatBubbleWidth(bg, editBox, strWidth + padding);
 	else
 		setChatBubbleWidth(bg, editBox, maxWidth + padding);
 	end
@@ -189,7 +189,6 @@ function ChatBubblePool.getChatBubble()
 	editBox:SetAutoFocus(false);
 	editBox:SetFontObject("ChatBubbleFont");
 	editBox:SetJustifyH("CENTER");
-	editBox:EnableMouse(false); --We'll use a button overlaid over the background to catch mouse events instead
 	editBox:SetScript("OnEnterPressed", function(self) if IsShiftKeyDown() then self:Insert("\n") else self:ClearFocus() end end);
 	editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end);
 	--Apparently, the below code stops the user from being able to change the cursor location
@@ -199,25 +198,21 @@ function ChatBubblePool.getChatBubble()
 
 	newChatBubble.editBox = editBox;
 
-	local chatBubbleBackground = CreateFrame("Frame",frameName.."Background",editBox);
+	local chatBubbleBackground = CreateFrame("Button",frameName.."Background",editBox);
 	chatBubbleBackground:SetBackdrop({
 		bgFile="Interface\\Tooltips\\CHATBUBBLE-BACKGROUND.BLP", 
 		edgeFile="Interface\\Tooltips\\CHATBUBBLE-BACKDROP.BLP", 
 		tile=true, tileSize=16, edgeSize=16, 
 		insets={left=16, right=16, top=16, bottom=16}
 	})
-	chatBubbleBackground:EnableMouse(true);
 	chatBubbleBackground:SetPoint("TOPLEFT",editBox,"CENTER",-16,16);
 	chatBubbleBackground:SetPoint("BOTTOMLEFT",editBox,"CENTER",-16,-16);
 	chatBubbleBackground.padding = 32;
 	chatBubbleBackground:SetWidth(64 + chatBubbleBackground.padding);
 	chatBubbleBackground:SetFrameStrata("BACKGROUND");
-
-	local chatBubbleMouseCatcher = CreateFrame("Button",frameName.."-MouseCatcher",chatBubbleBackground);
-	chatBubbleMouseCatcher:SetAllPoints();
-	chatBubbleMouseCatcher:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
-	chatBubbleMouseCatcher:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
-	chatBubbleMouseCatcher:SetScript("OnClick", function(self) editBox:SetFocus() end);
+	chatBubbleBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
+	chatBubbleBackground:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
+	chatBubbleBackground:SetScript("OnClick", function(self) editBox:SetFocus() end);
 	editBox.background = chatBubbleBackground;
 
 	--This part of the code makes the editbox and the background grow up to 300px as the text grows.
@@ -251,8 +246,8 @@ function ChatBubblePool.getChatBubble()
 	nameBox:SetMaxLetters(25);
 	nameBox.margin = {L=10, R=0, T=4, D=4};
 	nameBox.padding = {L=10, R=10};
-	nameBox:SetPoint("TOPLEFT",nameBoxFrame,nameBox.margin.L,-nameBox.margin.T);
 	nameBox:SetPoint("BOTTOMRIGHT",nameBoxFrame,-nameBox.margin.R,nameBox.margin.D);
+	nameBox:SetPoint("TOPLEFT",nameBoxFrame,nameBox.margin.L,-nameBox.margin.T);
 	nameBox:SetAutoFocus(false);
 	nameBox:SetMultiLine(true); --It's not actually multiline, but this stops the name from scrolling off if the user selects too much of the text. 
 								--The max letters should prevent the edit box from ever reaching more than one line
@@ -280,23 +275,6 @@ function ChatBubblePool.getChatBubble()
 	nameBoxMouseCatcher:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
 	nameBoxMouseCatcher:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
 	
-	local nameBoxColorPicker = CreateFrame("Button",frameName.."-ColorPickerButton",newChatBubble);
-	nameBoxColorPicker:SetSize(16,16);
-	nameBoxColorPicker:SetFrameStrata("MEDIUM") -- Needs to be higher than the EditBox to override it
-	nameBox.colorPickerTex = nameBoxColorPicker:CreateTexture(frameName.."-ColorPickerButton-color","ARTWORK")
-	nameBox.colorPickerTex:SetPoint("TOPLEFT",2,-2);
-	nameBox.colorPickerTex:SetPoint("BOTTOMRIGHT",-2,2);
-	nameBox.colorPickerTex:SetColorTexture(nameBox:GetTextColor());
-	local cpBorderTex = nameBoxColorPicker:CreateTexture(frameName.."-ColorPickerButton-border","BORDER");
-	cpBorderTex:SetAllPoints();
-	cpBorderTex:SetColorTexture(0.1,0.1,0.1);
-	nameBoxColorPicker:SetPoint("BOTTOMLEFT",nameBoxBackground,"BOTTOMRIGHT");
-	nameBoxColorPicker:SetAlpha(0.01);
-	nameBoxColorPicker:EnableMouse(true);
-	nameBoxColorPicker:SetScript("OnEnter", function(self) if nameBox:GetText() ~= "" then self:SetAlpha(1); end; end);
-	nameBoxColorPicker:SetScript("OnLeave", function(self) self:SetAlpha(0.01) end);
-	nameBoxColorPicker:SetScript("OnClick", function(self) pickNameColor(newChatBubble) end);
-
 	nameBox.stringMeasure = nameBox:CreateFontString(nil,"OVERLAY","GameFontNormal");
 	--nameBox.stringMeasure:SetAlpha(0);
 	nameBox.GetFullWidth = function(self)  return nameBoxBackground:GetWidth() end;
@@ -319,6 +297,23 @@ function ChatBubblePool.getChatBubble()
 	rightTex:SetPoint("TOPLEFT",midTex,"TOPRIGHT");
 	rightTex:SetPoint("BOTTOMLEFT",midTex,"BOTTOMRIGHT");
 	
+	local nameBoxColorPicker = CreateFrame("Button",frameName.."-ColorPickerButton",newChatBubble);
+	nameBoxColorPicker:SetSize(16,16);
+	nameBoxColorPicker:SetFrameStrata("MEDIUM") -- Needs to be higher than the EditBox to override it
+	nameBox.colorPickerTex = nameBoxColorPicker:CreateTexture(frameName.."-ColorPickerButton-color","ARTWORK")
+	nameBox.colorPickerTex:SetPoint("TOPLEFT",2,-2);
+	nameBox.colorPickerTex:SetPoint("BOTTOMRIGHT",-2,2);
+	nameBox.colorPickerTex:SetColorTexture(nameBox:GetTextColor());
+	local cpBorderTex = nameBoxColorPicker:CreateTexture(frameName.."-ColorPickerButton-border","BORDER");
+	cpBorderTex:SetAllPoints();
+	cpBorderTex:SetColorTexture(0.1,0.1,0.1);
+	nameBoxColorPicker:SetPoint("BOTTOMLEFT",nameBoxBackground,"BOTTOMRIGHT");
+	nameBoxColorPicker:SetAlpha(0.01);
+	nameBoxColorPicker:EnableMouse(true);
+	nameBoxColorPicker:SetScript("OnEnter", function(self) if nameBox:GetText() ~= "" then self:SetAlpha(1); end; end);
+	nameBoxColorPicker:SetScript("OnLeave", function(self) self:SetAlpha(0.01) end);
+	nameBoxColorPicker:SetScript("OnClick", function(self) pickNameColor(newChatBubble) end);
+
 	local chatBubbleTail = CreateFrame("Frame",frameName.."-tail",chatBubbleBackground)
 	chatBubbleTail:SetSize(16,16)
 	chatBubbleTail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3)
