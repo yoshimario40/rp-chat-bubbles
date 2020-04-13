@@ -131,7 +131,6 @@ local function moveTail(tail)
 		elseif newX > bubbleWidth - tailWidth - tail.minX then
 			newX = bubbleWidth - tailWidth - tail.minX
 		end
-		print( "cursorX=",cursorX, tail.origCursorLoc.x, cursorOffset, origPointWorldCoords.x, newXinWorldCoords, anchoringPointCoords.x, newXinWorldCoords - anchoringPointCoords.x, newX);
 		local yOffset = 0;
 		if closestEdge == "BOTTOM" then
 			yOffset = tail.bottomOffset;
