@@ -91,6 +91,26 @@ local function getClosestEdge(tail,bubble,cursorX,cursorY)
 	end
 end
 
+local function getAnchoringPointCoords(bubble,anchoringPoint)
+	if anchoringPoint == "BOTTOMLEFT" then
+		return { x=bubble:GetLeft(), y=bubble:GetBottom() };
+	elseif anchoringPoint == "BOTTOMRIGHT" then
+		return { x=bubble:GetRight(), y=bubble:GetBottom() };
+	elseif anchoringPoint == "TOPLEFT" then
+		return { x=bubble:GetLeft(), y=bubble:GetTop() };
+	else
+		return { x=bubble:GetRight(), y=bubble:GetTop() };
+	end 
+end
+
+local function addVector(a, b)
+	return { x=a.x + b.x, y=a.y + b.y };
+end
+
+local function subtractVector(a, b)
+	return { x=a.x - b.x, y=a.y - b.y};
+end
+
 local function moveTail(tail)
 	--Note: Since the chat bubble is anchored to the WorldFrame, we shouldn't adjust for UIParent's scale
 	local cursorX, cursorY = GetCursorPosition();  
@@ -98,15 +118,20 @@ local function moveTail(tail)
 	local bubble = tail:GetParent();
 	local tailWidth, tailHeight = tail:GetWidth(), tail:GetHeight();
 	local bubbleWidth, bubbleHeight = bubble:GetWidth(), bubble:GetHeight();
-	local closestEdge, point, anchoringPoint = getClosestEdge(tail,bubble,cursorX,cursorY);
+	local closestEdge, point, anchoringPoint = getClosestEdge(tail, bubble, cursorX, cursorY);
+	local anchoringPointCoords = getAnchoringPointCoords(bubble, anchoringPoint);
+	local oldAnchoringPointCoords = getAnchoringPointCoords(bubble, origPoint.relativeP);
+	local origPointWorldCoords = addVector(origPoint, oldAnchoringPointCoords);
 	if closestEdge == "BOTTOM" or closestEdge == "TOP" then
-		local offset = cursorX - tail.origCursorLoc.x
-		local newX = origPoint.x + offset;
+		local cursorOffset = cursorX - tail.origCursorLoc.x;
+		local newXinWorldCoords = origPointWorldCoords.x + cursorOffset;
+		local newX = newXinWorldCoords - anchoringPointCoords.x
 		if newX < tail.minX  then
 			newX = tail.minX
 		elseif newX > bubbleWidth - tailWidth - tail.minX then
 			newX = bubbleWidth - tailWidth - tail.minX
 		end
+		print( "cursorX=",cursorX, tail.origCursorLoc.x, cursorOffset, origPointWorldCoords.x, newXinWorldCoords, anchoringPointCoords.x, newXinWorldCoords - anchoringPointCoords.x, newX);
 		local yOffset = 0;
 		if closestEdge == "BOTTOM" then
 			yOffset = tail.bottomOffset;
@@ -118,8 +143,9 @@ local function moveTail(tail)
 		tail:ClearAllPoints();
 		tail:SetPoint(point,bubble,anchoringPoint,newX,yOffset);
 	else
-		local offset = cursorY - tail.origCursorLoc.y
-		local newY = origPoint.y + offset;
+		local cursorOffset = cursorY - tail.origCursorLoc.y
+		local newYinWorldCoords = origPointWorldCoords.y + cursorOffset
+		local newY = newYinWorldCoords - anchoringPointCoords.y;
 		if newY < tail.minY then
 			newY = tail.minY
 		elseif newY > bubbleHeight - tailHeight - tail.minY then
@@ -320,12 +346,10 @@ function ChatBubblePool.getChatBubble()
 	chatBubbleTail.tex = chatBubbleTail:CreateTexture(frameName.."-tailTexture","BACKGROUND");
 	chatBubbleTail.tex:SetTexture("Interface\\Tooltips\\CHATBUBBLE-TAIL.BLP");
 	chatBubbleTail.tex:SetAllPoints();
-	chatBubbleTail:SetScript("OnMouseDown",startMovingTail);
-	chatBubbleTail:SetScript("OnMouseUp",stopMovingTail);
 	chatBubbleTail.bottomOffset = 3;
 	chatBubbleTail.topOffset = -3;
 	chatBubbleTail.leftOffset = 3;
-	chatBubbleTail.rightOffset = -3;
+	chatBubbleTail.rightOffset = -4;
 	chatBubbleTail.minX = 8;
 	chatBubbleTail.minY = 8;
 	chatBubbleTail.Reset = function(self) 
@@ -333,6 +357,13 @@ function ChatBubblePool.getChatBubble()
 		self:ClearAllPoints();
 		self:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3);
 	end
+
+	local chatBubbleTailCatcher = CreateFrame("Button",frameName.."-tailButtonCatcher",chatBubbleTail);
+	chatBubbleTailCatcher:SetAllPoints();
+	chatBubbleTailCatcher:SetScript("OnMouseDown",function(self, button) startMovingTail(chatBubbleTail, button) end);
+	chatBubbleTailCatcher:SetScript("OnMouseUp",function(self, button) stopMovingTail(chatBubbleTail, button) end);
+	chatBubbleTailCatcher:SetFrameStrata("HIGH");
+
 	newChatBubble.tail = chatBubbleTail;
 
 	--Functions for outside use
