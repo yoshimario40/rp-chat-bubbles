@@ -81,9 +81,9 @@ local function getClosestEdge(tail,bubble,cursorX,cursorY)
 	--This calculates the vector from the center of the bubble to the cursor co-oridinates. 
 	local localCursorX, localCursorY = cursorX - centerX, cursorY - centerY;
 	if localCursorX >= 0 and localCursorX * bubbleGradient > math.abs(localCursorY) then
-		return "RIGHT", "BOTTOMLEFT", "BOTTOMRIGHT";
+		return "RIGHT", "TOPLEFT", "TOPRIGHT";
 	elseif localCursorX < 0 and -localCursorX * bubbleGradient > math.abs(localCursorY) then
-		return "LEFT", "BOTTOMRIGHT", "BOTTOMLEFT";
+		return "LEFT", "TOPRIGHT", "TOPLEFT";
 	elseif localCursorY >= 0 and localCursorY > math.abs(localCursorX) * bubbleGradient then
 		return "TOP", "BOTTOMLEFT","TOPLEFT";
 	else
@@ -144,7 +144,7 @@ local function moveTail(tail)
 	else
 		local cursorOffset = cursorY - tail.origCursorLoc.y
 		local newYinWorldCoords = origPointWorldCoords.y + cursorOffset
-		local newY = newYinWorldCoords - anchoringPointCoords.y;
+		local newY = -(newYinWorldCoords - anchoringPointCoords.y);
 		if newY < tail.minY then
 			newY = tail.minY
 		elseif newY > bubbleHeight - tailHeight - tail.minY then
@@ -153,14 +153,15 @@ local function moveTail(tail)
 		local xOffset = 0;
 		if closestEdge == "LEFT" then
 			xOffset = tail.leftOffset;
-			tail.tex:SetRotation(math.pi * 1.5 ); 
+			tail.tex:SetRotation( math.pi * 1.5 ); 
 		else 
 			xOffset = tail.rightOffset;
-			tail.tex:SetRotation(math.pi * 0.5);
+			tail.tex:SetRotation( math.pi * 0.5 );
 		end
 		tail:ClearAllPoints();
-		tail:SetPoint(point,bubble,anchoringPoint,xOffset,newY);
+		tail:SetPoint(point,bubble,anchoringPoint,xOffset,-newY);
 	end
+	tail.side = closestEdge
 end 
 
 local function startMovingTail(self, button)
@@ -178,6 +179,23 @@ end
 local function stopMovingTail(self,button)
 	if button == "LeftButton" then
 		self:SetScript("OnUpdate",nil);
+	end 
+end
+
+local function checkTailBounds(chatBubble)
+	local tail = chatBubble.tail;
+	local point, chatBubbleBg, relativePoint, x, y = tail:GetPoint(1);
+	if tail.side == "RIGHT" or tail.side == "LEFT" then
+		y = -y; --Reverse Y because the point goes from top down.
+		local maxY = chatBubbleBg:GetHeight() - tail:GetHeight() - tail.minY
+		if ( y > maxY ) then
+			tail:SetPoint(point, chatBubbleBg, relativePoint, x, -maxY);
+		end 
+	else
+		local maxX = chatBubbleBg:GetWidth() - tail:GetWidth() - tail.minX;
+		if ( x > maxX ) then
+			tail:SetPoint(point, chatBubbleBg, relativePoint, maxX, y);
+		end
 	end 
 end
 
@@ -247,6 +265,7 @@ function ChatBubblePool.getChatBubble()
 	editBox:SetScript("OnTextChanged", function(self) 
 	    editBox.stringMeasure:SetText(self:GetText());
 		adjustChatBubbleWidth(newChatBubble);
+		checkTailBounds(newChatBubble);
 	end)
 
 	--This is a hack that centers the newChatBubble using the center of the editbox
@@ -348,13 +367,15 @@ function ChatBubblePool.getChatBubble()
 	chatBubbleTail.bottomOffset = 3;
 	chatBubbleTail.topOffset = -3;
 	chatBubbleTail.leftOffset = 3;
-	chatBubbleTail.rightOffset = -4;
+	chatBubbleTail.rightOffset = -3;
 	chatBubbleTail.minX = 8;
 	chatBubbleTail.minY = 8;
+	chatBubbleTail.side = "BOTTOM";
 	chatBubbleTail.Reset = function(self) 
 		self.tex:SetRotation(0);
 		self:ClearAllPoints();
 		self:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3);
+		self.tail = "BOTTOM"
 	end
 
 	local chatBubbleTailCatcher = CreateFrame("Button",frameName.."-tailButtonCatcher",chatBubbleTail);
