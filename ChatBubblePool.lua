@@ -199,6 +199,11 @@ local function checkTailBounds(chatBubble)
 	end 
 end
 
+local function clearFocusAndSelection(editBox)
+	editBox:ClearFocus()
+	editBox:HighlightText(0,0);
+end 
+
 function ChatBubblePool.getChatBubble()
 	for index, chatBubble in ipairs(pool) do
 		if chatBubble.isAvailable then
@@ -233,7 +238,7 @@ function ChatBubblePool.getChatBubble()
 	editBox:SetFontObject("ChatBubbleFont");
 	editBox:SetJustifyH("CENTER");
 	editBox:SetScript("OnEnterPressed", function(self) if IsShiftKeyDown() then self:Insert("\n") else self:ClearFocus() end end);
-	editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end);
+	editBox:SetScript("OnEscapePressed",clearFocusAndSelection);
 	--Apparently, the below code stops the user from being able to change the cursor location
 	--editBox:EnableMouse(true)
 	--editBox:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
@@ -295,30 +300,30 @@ function ChatBubblePool.getChatBubble()
 	nameBox:SetAutoFocus(false);
 	nameBox:SetMultiLine(true); --It's not actually multiline, but this stops the name from scrolling off if the user selects too much of the text. 
 								--The max letters should prevent the edit box from ever reaching more than one line
-	nameBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end);
-	nameBox:SetScript("OnTabPressed", function(self) editBox:SetFocus() end);
+	nameBox:SetScript("OnEnterPressed",clearFocusAndSelection);
+	nameBox:SetScript("OnTabPressed",function(self) editBox:SetFocus() end);
+	nameBox:SetScript("OnEscapePressed",clearFocusAndSelection);
 	nameBox:SetAlpha(0);
 	nameBox:SetScript("OnEditFocusGained", function(self) self:SetAlpha(1) end);
 	nameBox:SetScript("OnEditFocusLost", function(self) if self:GetText() == "" then self:SetAlpha(0.01) end end);
+	--nameBox:SetScript("OnClick", function(self) nameBox:SetFocus() end);
+	nameBox:SetScript("OnEnter", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0.5) end end);
+	nameBox:SetScript("OnLeave", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0) end end);
 	newChatBubble.nameBox = nameBox;
 
-	local nameBoxBackground = CreateFrame("Frame",frameName.."-NameBoxBackground",nameBox);
+	local nameBoxBackground = CreateFrame("Button",frameName.."-NameBoxBackground",nameBox);
 	local paddingL = nameBox.padding.L;
 	nameBoxBackground:SetPoint("BOTTOMLEFT",nameBox,"BOTTOMLEFT",-paddingL,-nameBox.margin.D)
 	nameBoxBackground:SetPoint("TOPLEFT",nameBox,"TOPLEFT",-paddingL,nameBox.margin.T + 12);
 	nameBoxBackground:SetWidth(32);
 	nameBoxBackground:SetFrameStrata("BACKGROUND");
+	nameBoxBackground:SetScript("OnClick", function(self) nameBox:SetFocus() end);
+	nameBoxBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
+	nameBoxBackground:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
+	nameBoxBackground:SetScript("OnEnter", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0.5) end end);
+	nameBoxBackground:SetScript("OnLeave", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0) end end);
 	nameBox.background = nameBoxBackground
 
-	local nameBoxMouseCatcher = CreateFrame("Button",frameName.."-NameBoxMouseCatcher",nameBox);
-	nameBoxMouseCatcher:SetPoint("BOTTOMLEFT",nameBoxBackground);
-	nameBoxMouseCatcher:SetPoint("TOPRIGHT",nameBoxBackground);
-	nameBoxMouseCatcher:SetScript("OnEnter", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0.5) end end);
-	nameBoxMouseCatcher:SetScript("OnLeave", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0) end end);
-	nameBoxMouseCatcher:SetScript("OnClick", function(self) nameBox:SetFocus() end);
-	nameBoxMouseCatcher:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
-	nameBoxMouseCatcher:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
-	
 	nameBox.stringMeasure = nameBox:CreateFontString(nil,"OVERLAY","GameFontNormal");
 	--nameBox.stringMeasure:SetAlpha(0);
 	nameBox.GetFullWidth = function(self)  return nameBoxBackground:GetWidth() end;
@@ -353,10 +358,10 @@ function ChatBubblePool.getChatBubble()
 	cpBorderTex:SetColorTexture(0.1,0.1,0.1);
 	nameBoxColorPicker:SetPoint("BOTTOMLEFT",nameBoxBackground,"BOTTOMRIGHT");
 	nameBoxColorPicker:SetAlpha(0.01);
-	nameBoxColorPicker:EnableMouse(true);
+	nameBoxColorPicker:EnableMouse(false);
 	nameBoxColorPicker:SetScript("OnEnter", function(self) if nameBox:GetText() ~= "" then self:SetAlpha(1); end; end);
 	nameBoxColorPicker:SetScript("OnLeave", function(self) self:SetAlpha(0.01) end);
-	nameBoxColorPicker:SetScript("OnClick", function(self) pickNameColor(newChatBubble) end);
+	nameBoxColorPicker:SetScript("OnClick", function(self) if nameBox:GetText() ~= "" then pickNameColor(newChatBubble) end; end);
 
 	local chatBubbleTail = CreateFrame("Frame",frameName.."-tail",chatBubbleBackground)
 	chatBubbleTail:SetSize(16,16)
