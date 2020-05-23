@@ -111,6 +111,26 @@ local function subtractVector(a, b)
 	return { x=a.x - b.x, y=a.y - b.y};
 end
 
+local function closeBubbles()
+	for _, bubble in pairs(pool) do
+		closeBubble(bubble);
+	end
+end 
+
+local function hideBubbles()
+	for _, bubble in pairs(pool) do
+		bubble:Hide()
+	end 
+end 
+
+local function showBubbles()
+	for _, bubble in pairs(pool) do
+		if not bubble.isAvailable then
+			bubble:Show()
+		end
+	end
+end
+
 local function moveTail(tail)
 	--Note: Since the chat bubble is anchored to the WorldFrame, we shouldn't adjust for UIParent's scale
 	local cursorX, cursorY = GetCursorPosition();  
@@ -404,3 +424,19 @@ function ChatBubblePool.getChatBubble()
 
 	return newChatBubble
 end
+
+local function doEvent(self, event, ...)
+	if event == "PLAY_MOVIE" then
+		closeBubbles()
+	elseif event == "CINEMATIC_START" then
+		hideBubbles()
+	elseif event == "CINEMATIC_STOP" then
+		showBubbles()
+	end
+end
+
+local frame = CreateFrame("FRAME","ChatBubbleEventHandler");
+frame:RegisterEvent("PLAY_MOVIE");
+frame:RegisterEvent("CINEMATIC_START");
+frame:RegisterEvent("CINEMATIC_STOP");
+frame:SetScript("OnEvent",doEvent);
