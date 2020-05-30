@@ -77,7 +77,12 @@ function TotalRP3_onStart(self)
 			ChatFrame_RemoveMessageEventFilter(channel, makeBubbleForNPCChat);
 			ChatFrame_AddMessageEventFilter(channel, makeBubbleForNPCChat);
 		end 
-		Import.modules.BlizzChatIntegration:ResetChatHandler()
+		--Don't re-order BCI's chat handler. It's important for BCI's handler to go first before 
+		--  TotalRP3 as TotalRP3's modifications to the chat message (e.g. colouring)
+		--  are not propagated to the chat bubble, and BlizzChatIntegration.lua relies on 
+		--  using the message as a common key between the chat message and chat bubble 
+		--  to map the chat bubble to a character name.  
+		--Import.modules.BlizzChatIntegration:ResetChatHandler()
 	end
 end
 

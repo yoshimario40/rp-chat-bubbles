@@ -170,12 +170,13 @@ local function onChatMessage(_, event, message, sender, ...)
 	return false, message, sender, ...
 end
 
-local function resetChatHandler(self)
-	for _, channel in pairs(MANAGED_CHANNELS) do
-		ChatFrame_RemoveMessageEventFilter(channel, onChatMessage)
-		ChatFrame_AddMessageEventFilter(channel, onChatMessage);
-	end
-end
+--This will probably not be needed, but just in case...
+--local function resetChatHandler(self)
+--	for _, channel in pairs(MANAGED_CHANNELS) do
+--		ChatFrame_RemoveMessageEventFilter(channel, onChatMessage)
+--		ChatFrame_AddMessageEventFilter(channel, onChatMessage);
+--	end
+--end
 
 local function onStart(self)
 	for _, channel in pairs(MANAGED_CHANNELS) do
@@ -186,4 +187,4 @@ end
 Import.modules.BlizzChatIntegration = {};
 Import.modules.BlizzChatIntegration.name = "BlizzChatIntegration";
 Import.modules.BlizzChatIntegration.OnStart = onStart;
-Import.modules.BlizzChatIntegration.ResetChatHandler = resetChatHandler
+--Import.modules.BlizzChatIntegration.ResetChatHandler = resetChatHandler
