@@ -1,0 +1,124 @@
+<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="Settings.lua" />
+	<Frame name="SettingsPanel" hidden="true" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+		<Size>
+			<AbsDimension x="503" y="222" />
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" />
+		</Anchors>
+		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11" />
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" />
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32" />
+			</EdgeSize>
+		</Backdrop>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="Header" inherits="GameFontNormalHuge" text="Settings" justifyH="LEFT">
+					<Size x="80" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="17" y="-18" />
+					</Anchors>
+				</FontString>
+				<FontString name="GeneralHeader" inherits="GameFontNormalLargeLeft" text="General">
+					<Size x="80" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-45" />
+					</Anchors>
+				</FontString>
+				<FontString name="DressBlizzBubbleLabel" inherits="GameFontHighlightLeft" text="Put name on regular chat bubbles?">
+					<Size x="419" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-72" />
+					</Anchors>
+				</FontString>
+				<FontString name="totalRP3Header" inherits="GameFontNormalLarge" text="TotalRP3" justifyH="LEFT">
+					<Size x="80" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-99" />
+					</Anchors>
+				</FontString>
+				<FontString name="totalRP3GenerateOptionLabel" inherits="GameFontHighlight" text="Generate chat bubbles for NPC Speeches?" justifyH="LEFT">
+					<Size x="419" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-126" />
+					</Anchors>
+				</FontString>
+				<FontString name="totalRP3GenerateOtherPlayerLabel" inherits="GameFontHighlight" text="Generate chat bubbles for NPC Speeches by other players?" justifyH="LEFT">
+					<Size x="436" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-153" />
+					</Anchors>
+				</FontString>
+				<FontString name="NotInstalledLabel" inherits="GameFontRed" hidden="true" text="(Not Installed)" justifyH="LEFT">
+					<Size x="100" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="totalRP3Header" relativePoint="TOPRIGHT" x="5" y="0" />
+					</Anchors>
+					<Color r="0.784" g="0.102" b="0.102" />
+				</FontString>
+				<FontString name="UIReloadWarningLabel" inherits="GameFontRed" hidden="true" text="UI Reload Required." justifyH="LEFT">
+					<Size x="299" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-178" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="DressBlizzBubbleCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="450" y="-62" />
+				</Anchors>
+				<Scripts>
+					<OnClick function="ToggleReloadWarning">
+
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="totalRP3GenerateCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="450" y="-118" />
+				</Anchors>
+			</CheckButton>
+			<CheckButton name="totalRP3GenerateOtherCheck" inherits="UICheckButtonTemplate" text="CheckButton2">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="450" y="-145" />
+				</Anchors>
+			</CheckButton>
+			<Button name="OkayButton" inherits="UIPanelButtonTemplate" text="Okay">
+				<Size x="245" y="23" />
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="17" y="21" />
+				</Anchors>
+				<Scripts>
+					<OnClick function="SaveSettings">
+
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Button name="CancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+				<Size x="214" y="23" />
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="268" y="21" />
+				</Anchors>
+				<Scripts>
+					<OnClick function="CancelSettings">
+
+					</OnClick>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad function="ConfigureFrameOnRuntime">
+
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>
