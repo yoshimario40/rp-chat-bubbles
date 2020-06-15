@@ -3,6 +3,8 @@
 
 local ADDON_NAME, Import = ...
 
+local settings;
+
 --This is an invisible frame that is created to receive OnUpdate calls
 --Attached to the WorldFrame so it receives events even when the UI is hidden
 local Timer = CreateFrame("Frame","RPChatBubble-Timer",WorldFrame)
@@ -179,8 +181,11 @@ end
 --end
 
 local function onStart(self)
-	for _, channel in pairs(MANAGED_CHANNELS) do
-		ChatFrame_AddMessageEventFilter(channel, onChatMessage);
+	settings = Import.settings;
+	if settings.dressBlizzBubbles then
+		for _, channel in pairs(MANAGED_CHANNELS) do
+			ChatFrame_AddMessageEventFilter(channel, onChatMessage);
+		end
 	end
 end
 

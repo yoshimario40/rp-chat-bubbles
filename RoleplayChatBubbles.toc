@@ -3,6 +3,8 @@
 ## Author: Christopher Tse
 ## Interface: 80300
 ## OptionalDeps: totalRP3
+## SavedVariablesPerCharacter: settings
 
+Settings.xml
 ChatBubblePool.lua
 MainFrame.xml
