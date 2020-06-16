@@ -30,15 +30,17 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 							myMessage = myMessage:sub(11);
 						end
 
-						--If the name is not in the default color scheme, save it to be set later
-						--Otherwise, we'll highlight it with ChatBubble's default name colour.
-						if npcName:sub(1,10) ~= normalColorAsString and npcName:sub(-2) == "|r" then
-							nameColor = Color.static.CreateFromHexa(npcName:sub(1,10));
-						else
-							--Strip out the |c and |r tags so they don't get in the way of SetName()
-							npcName = npcName:sub(11);
-							npcName = npcName:sub(1,-3);
-						end
+						if npcName:sub(1,2) == "|c" and npcName:sub(-2) == "|r" then
+							--If the name is not in the default color scheme, save it to be set later
+							--Otherwise, we'll replace the name color with ChatBubble's default name colour.
+							if npcName:sub(1,10) ~= normalColorAsString then
+								nameColor = Color.static.CreateFromHexa(npcName:sub(1,10));
+							else
+								--Strip out the |c and |r tags so they don't get in the way of SetName()
+								npcName = npcName:sub(11);
+								npcName = npcName:sub(1,-3);
+							end
+						end 
 						local len = talkType:len();
 						--Remove the "says:" from the beginning of the message. 
 						if myMessage:sub(1, len) == talkType then
@@ -47,11 +49,10 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 							--Remove leading spaces if any
 							if actualMessage:sub(1,1) == " " then
 								actualMessage = actualMessage:sub(2);
-							end 
+							end
 
 							actualMessage = color .. actualMessage;
 							local chatBubble = RPChatBubbles_createChatBubble()
-							print(string.gsub(npcName,"|","||"));
 							chatBubble:SetName(npcName);
 							chatBubble:SetMessage(actualMessage);
 							if nameColor then
