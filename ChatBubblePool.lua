@@ -303,8 +303,8 @@ function ChatBubblePool.getChatBubble()
 	closeButton:SetPoint("CENTER",chatBubbleBackground,"TOPRIGHT",-4,-4);
 	closeButton:SetScript("OnClick",function(self) closeBubble(newChatBubble) end);
 	closeButton:SetScript("OnEnter",function(self) closeButton:SetAlpha(1) end);
-	closeButton:SetScript("OnLeave",function(self) closeButton:SetAlpha(0.1) end);
-	closeButton:SetAlpha(0.1);
+	closeButton:SetScript("OnLeave",function(self) closeButton:SetAlpha(0) end);
+	closeButton:SetAlpha(0);
 
 	local nameBoxFrame = CreateFrame("Frame",frameName.."-NameBoxFrame",newChatBubble)
 	nameBoxFrame:SetSize(250,18);
