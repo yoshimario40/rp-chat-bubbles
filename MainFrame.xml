@@ -3,9 +3,9 @@
 	<Script file="BlizzChatIntegration.lua" />
 	<Script file="TotalRP3.lua" />
 	<Frame name="MainFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
-		<Size x="183" y="76" />
+		<Size x="187" y="76" />
 		<Anchors>
-			<Anchor point="CENTER" x="-9" y="29" />
+			<Anchor point="CENTER" x="-7" y="29" />
 		</Anchors>
 		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
 			<BackgroundInsets>
@@ -30,10 +30,28 @@
 		</Layers>
 		<Frames>
 			<Button name="CreateButton" inherits="UIPanelButtonTemplate" text="Create">
-				<Size x="152" y="23" />
+				<Size x="113" y="27" />
 				<Anchors>
 					<Anchor point="TOPLEFT" x="15" y="-35" />
 				</Anchors>
+				<Frames>
+					<Frame text="" name="ColorDropdownButton" inherits="UIDropDownMenuTemplate">
+						<Size x="20" y="23" />
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="CreateButton" relativePoint="TOPRIGHT" x="-16" y="0" />
+						</Anchors>
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture name="ColorSwatchTex" alpha="0.8">
+									<Size x="12" y="12" />
+									<Anchors>
+										<Anchor point="TOPLEFT" x="26" y="-8" />
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
 				<Scripts>
 					<OnClick function="RPChatBubbles_createChatBubble">
 
@@ -43,7 +61,7 @@
 			<Button name="HideButton" inherits="UIPanelButtonTemplate" text="">
 				<Size x="20" y="20" />
 				<Anchors>
-					<Anchor point="TOPLEFT" x="149" y="-14" />
+					<Anchor point="TOPRIGHT" x="-14" y="-14" />
 				</Anchors>
 				<Layers>
 					<Layer>
@@ -64,7 +82,7 @@
 			<Button name="SettingsButton" inherits="UIPanelButtonTemplate" text="">
 				<Size x="20" y="20" />
 				<Anchors>
-					<Anchor point="TOPLEFT" x="127" y="-14" />
+					<Anchor point="TOPRIGHT" x="-36" y="-14" />
 				</Anchors>
 				<Layers>
 					<Layer>

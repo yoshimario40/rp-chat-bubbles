@@ -417,7 +417,9 @@ function ChatBubblePool.getChatBubble()
 	newChatBubble.GetMessage = editBox.GetText;
 	newChatBubble.SetMessage = function(self,message) editBox:SetText(message) end;
 	newChatBubble.GetNameColor = function(self) return nameBox:GetTextColor() end;
-	newChatBubble.SetNameColor = function(self,r,g,b) nameBox:SetTextColor(r,g,b) nameBox.colorPickerTex:SetColorTexture(r,g,b) end;
+	newChatBubble.SetNameColor = function(self,r,g,b) nameBox:SetTextColor(r,g,b); nameBox.colorPickerTex:SetColorTexture(r,g,b) end;
+	newChatBubble.GetTextColor = function(self) return editBox:GetTextColor() end;
+	newChatBubble.SetTextColor = function(self,r,g,b) editBox:SetTextColor(r,g,b) end;
 
 	local origR,origG,origB = nameBox:GetTextColor();
 	newChatBubble.ResetNameColor = function(self) self:SetNameColor(origR,origG,origB); end;

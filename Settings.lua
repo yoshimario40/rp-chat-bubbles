@@ -11,6 +11,13 @@ function initSettings()
 		settings.generateTotalRP3Bubbles = true;
 		settings.generateTotalRP3BubblesForOtherPlayers = true;
 	end
+	if settings.selectedColor == nil then
+		c = {};
+		c.r, c.g, c.b = 1.0, 1.0, 1.0
+		settings.textColor = c;
+		settings.selectedColor = "Say"
+		settings.customColor = c;
+	end
 	Import.settings = settings;
 end
 

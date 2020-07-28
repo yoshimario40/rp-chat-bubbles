@@ -26,11 +26,15 @@ function RPChatBubbles_OnEvent(self, event, ...)
 			moduleStructure:OnStart();
 		end
 		SetVisibility(self, settings.isFrameVisible);
+		initColorDropdown();
 	end
 end
 
 function RPChatBubbles_createChatBubble()
-	return ChatBubblePool.getChatBubble()
+	local bubble = ChatBubblePool.getChatBubble();
+	local textColor = settings.textColor;
+	local selectedColor = settings.selectedColor;
+	bubble:SetTextColor(textColor.r,textColor.g,textColor.b);
 end
 
 function RPChatBubbles_toggleVisibility()
@@ -46,6 +50,74 @@ function RPChatBubbles_showSettingsPanel(self, event, ...)
 	Import.ShowSettingsPanel();
 end
 
+function initColorDropdown()
+	local dropdown = ColorDropdownButton;
+	UIDropDownMenu_SetWidth(dropdown, 28);
+	UIDropDownMenu_Initialize(dropdown, function(self, menu, level)
+		addMenuItem("Say",ChatTypeInfo["SAY"]);
+		addMenuItem("Say (NPC)",ChatTypeInfo["MONSTER_SAY"]);
+		addMenuItem("Yell",ChatTypeInfo["YELL"]);
+		addMenuItem("Whisper",ChatTypeInfo["WHISPER"]);
+		addMenuItem("Custom",nil,true);
+	end)
+	local rgb = settings.textColor;
+	if rgb then
+		ColorSwatchTex:SetColorTexture(rgb.r,rgb.g,rgb.b);
+	end
+end
+
+function addMenuItem(text, color, custom)
+	local info = UIDropDownMenu_CreateInfo();
+	info.text, info.arg1, info.arg2 = text, text, color;
+	if custom then
+		info.hasColorSwatch = true;
+		local rgb = settings.customColor;
+		info.r, info.g, info.b = rgb.r, rgb.g, rgb.b;
+		info.swatchFunc = setCustomColor;
+		info.cancelFunc = cancelCustomColor;
+		info.func = startCustomColorPicking;
+	else
+		info.colorCode = "|cFF" .. rgbToHex(color);
+		info.func = selectColor
+	end
+	if settings.selectedColor == text then
+		info.checked = true;
+	end
+	UIDropDownMenu_AddButton(info);
+end
+
+function rgbToHex(color)
+	return string.format("%02x%02x%02x", color.r*255, color.g*255, color.b*255)
+end
+
+function selectColor(self,channelColor,rgb,checked)
+	settings.selectedColor = channelColor;
+	settings.textColor = rgb;
+	ColorSwatchTex:SetColorTexture(rgb.r,rgb.g,rgb.b);
+end
+
+function startCustomColorPicking(self)
+	previousSelection = settings.selectedColor;
+	previousColor = settings.textColor;
+	UIDropDownMenuButton_OpenColorPicker(self);
+end
+
+function setCustomColor(previousSelection)
+	local rgb = {}
+	if previousSelection then
+		rgb = previousSelection
+	else
+		rgb.r, rgb.g, rgb.b = ColorPickerFrame:GetColorRGB() 
+	end
+	selectColor(nil,"Custom",rgb);
+	settings.customColor = rgb;
+end
+
+function cancelCustomColor()
+	settings.selectedColor = previousSelection;
+	settings.textColor = previousColor;
+end
+
 function SetVisibility(self, visible)
 	if visible then
 		self:SetAlpha(1.0);
@@ -53,6 +125,7 @@ function SetVisibility(self, visible)
 		removeVisibilityScripts(CreateButton);
 		removeVisibilityScripts(SettingsButton);
 		removeVisibilityScripts(HideButton);
+		removeVisibilityScripts(ColorDropdownButton);
 		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-hideButton");
 	else
 		self:SetAlpha(0.5);
@@ -60,6 +133,7 @@ function SetVisibility(self, visible)
 		addVisibilityScripts(CreateButton);
 		addVisibilityScripts(SettingsButton);
 		addVisibilityScripts(HideButton);
+		addVisibilityScripts(ColorDropdownButton);
 		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-showButton");
 	end
 end

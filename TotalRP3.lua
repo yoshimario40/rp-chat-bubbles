@@ -7,7 +7,7 @@ local _, Import = ...;
 local ellyb, loc, Color, ColorManager;
 local NPC_TALK_PATTERNS;
 local settings;
-
+local ChatBubblePool = Import.ChatBubblePool
 
 local function makeBubbleForNPCChat(_, event, message, ...)
 	if event == "CHAT_MSG_EMOTE" then
@@ -40,7 +40,7 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 								npcName = npcName:sub(11);
 								npcName = npcName:sub(1,-3);
 							end
-						end 
+						end
 						local len = talkType:len();
 						--Remove the "says:" from the beginning of the message. 
 						if myMessage:sub(1, len) == talkType then
@@ -52,7 +52,7 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 							end
 
 							actualMessage = color .. actualMessage;
-							local chatBubble = RPChatBubbles_createChatBubble()
+							local chatBubble = ChatBubblePool.getChatBubble()
 							chatBubble:SetName(npcName);
 							chatBubble:SetMessage(actualMessage);
 							if nameColor then
