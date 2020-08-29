@@ -3,52 +3,144 @@
 
 local ADDON_NAME, Import = ...;
 
-local ChatBubblePool = Import.ChatBubblePool
+local ChatBubblePool = Import.ChatBubblePool;
 local settings;
+
+local smartTargetColoringActive = false;
+local savedColor;
+local savedRGB;
+
+Import.SharedFunctions = {};
 
 function RPChatBubbles_OnLoad(self, event,...) 
 	self:SetClampedToScreen(true);
     self:RegisterEvent("ADDON_LOADED");
+	self:RegisterEvent("MODIFIER_STATE_CHANGED");
+	self:RegisterEvent("PLAYER_TARGET_CHANGED");
 end
 
 function RPChatBubbles_OnEvent(self, event, ...) 
      if event == "ADDON_LOADED" and ... == ADDON_NAME then
 		Import:initSettings();
 		settings = Import.settings;
-		self:RegisterForDrag("LeftButton");
-		self:SetScript("OnDragStart", function(self)
-			self:StartMoving();
-		end);
-		self:SetScript("OnDragStop", function(self)
-			self:StopMovingOrSizing();
-		end);
+		sharedFunctions = Import.SharedFunctions;
+		initMainFrame(self);
 		for moduleName, moduleStructure in pairs(Import.modules) do
 			moduleStructure:OnStart();
 		end
-		SetVisibility(self, settings.isFrameVisible);
 		initColorDropdown();
+	elseif event == "MODIFIER_STATE_CHANGED" then
+		handleKeyPress();
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		checkSmartTargetColoring();
 	end
 end
 
 function RPChatBubbles_createChatBubble()
 	local bubble = ChatBubblePool.getChatBubble();
-	local textColor = settings.textColor;
-	local selectedColor = settings.selectedColor;
+	local textColor = settings.get("SELECTED_COLOR_RGB");
+	local selectedColor = settings.get("SELECTED_COLOR");
+	local GetUnitNameAndColor = Import.SharedFunctions.GetUnitNameAndColor;
+	
+
+	local unitID = nil;
+
+	if IsShiftKeyDown() then
+		unitID = "player";
+	elseif IsControlKeyDown() then
+		unitID = "target";
+	end
+
 	bubble:SetTextColor(textColor.r,textColor.g,textColor.b);
+
+	--If we are trying to populate the name field using shift or control, then enter this block. 
+	--The method used will depend on whether TotalRP3 is installed or not
+	if unitID then
+		name, color = GetUnitNameAndColor(unitID);
+		if name then
+			bubble:SetName(name);
+			-- The Color will only be populated if TotalRP3 is enabled. 
+			-- The variable type is the Ellyb Color() class.
+			if color then
+				bubble:SetNameColor(color:GetRGB());
+			end
+		end
+	end
 end
 
 function RPChatBubbles_toggleVisibility()
-	if settings.isFrameVisible then
-		settings.isFrameVisible = false;
+	if settings.get("IS_FRAME_VISIBLE") then
+		settings.set("IS_FRAME_VISIBLE", false);
 	else
-		settings.isFrameVisible = true
+		settings.set("IS_FRAME_VISIBLE", true);
 	end
-	SetVisibility(MainFrame, settings.isFrameVisible);
+	SetVisibility(MainFrame, settings.get("IS_FRAME_VISIBLE"));
 end
 
 function RPChatBubbles_showSettingsPanel(self, event, ...)
 	Import.ShowSettingsPanel();
 end
+
+function Import.SharedFunctions.GetUnitNameAndColor(unitID)
+	return UnitName(unitID), nil;
+end
+
+----------------------------------------------------------
+
+function initMainFrame(self)
+	self:RegisterForDrag("LeftButton");
+	self:SetScript("OnDragStart", function(self)
+		self:StartMoving();
+	end);
+	self:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing();
+	end);
+	SetVisibility(self, settings.get("IS_FRAME_VISIBLE"));
+end
+
+function handleKeyPress()
+	if settings.get("CREATE_BUTTON_EXTRA_TEXT") then
+		if IsShiftKeyDown() then
+			CreateButton:SetText("Create (Self)");
+		elseif IsControlKeyDown() then
+			CreateButton:SetText("Create (Target)");		
+		else
+			CreateButton:SetText("Create");
+		end
+	end
+	checkSmartTargetColoring();
+end
+
+function checkSmartTargetColoring()
+	if not settings.get("SMART_COLORING") then
+		return
+	end
+	if IsControlKeyDown() and SayColorSelected() then
+		if not smartTargetColoringActive then
+			smartTargetColoringActive = true;
+			savedColor = settings.get("SELECTED_COLOR");
+			savedRGB = settings.get("SELECTED_COLOR_RGB");
+		end
+
+		if UnitExists("target") then
+			if UnitIsPlayer("target") then
+				selectColor(nil,"Say",ChatTypeInfo["SAY"],nil);
+			else
+				selectColor(nil,"Say (NPC)",ChatTypeInfo["MONSTER_SAY"],nil);
+			end
+		else
+			selectColor(nil,savedColor,savedRGB,nil);
+		end
+	elseif smartTargetColoringActive and not IsControlKeyDown() then
+		smartTargetColoringActive = false;
+		selectColor(nil,savedColor,savedRGB,nil);
+	end
+end
+
+function SayColorSelected() 
+	selectedColor = settings.get("SELECTED_COLOR");
+	return selectedColor == "Say" or selectedColor == "Say (NPC)";
+end 
 
 function initColorDropdown()
 	local dropdown = ColorDropdownButton;
@@ -56,11 +148,12 @@ function initColorDropdown()
 	UIDropDownMenu_Initialize(dropdown, function(self, menu, level)
 		addMenuItem("Say",ChatTypeInfo["SAY"]);
 		addMenuItem("Say (NPC)",ChatTypeInfo["MONSTER_SAY"]);
+		addMenuItem("Emote",ChatTypeInfo["EMOTE"]);
 		addMenuItem("Yell",ChatTypeInfo["YELL"]);
 		addMenuItem("Whisper",ChatTypeInfo["WHISPER"]);
 		addMenuItem("Custom",nil,true);
 	end)
-	local rgb = settings.textColor;
+	local rgb = settings.get("SELECTED_COLOR_RGB");
 	if rgb then
 		ColorSwatchTex:SetColorTexture(rgb.r,rgb.g,rgb.b);
 	end
@@ -71,7 +164,7 @@ function addMenuItem(text, color, custom)
 	info.text, info.arg1, info.arg2 = text, text, color;
 	if custom then
 		info.hasColorSwatch = true;
-		local rgb = settings.customColor;
+		local rgb = settings.get("CUSTOM_COLOR");
 		info.r, info.g, info.b = rgb.r, rgb.g, rgb.b;
 		info.swatchFunc = setCustomColor;
 		info.cancelFunc = cancelCustomColor;
@@ -80,7 +173,7 @@ function addMenuItem(text, color, custom)
 		info.colorCode = "|cFF" .. rgbToHex(color);
 		info.func = selectColor
 	end
-	if settings.selectedColor == text then
+	if settings.get("SELECTED_COLOR") == text then
 		info.checked = true;
 	end
 	UIDropDownMenu_AddButton(info);
@@ -91,14 +184,14 @@ function rgbToHex(color)
 end
 
 function selectColor(self,channelColor,rgb,checked)
-	settings.selectedColor = channelColor;
-	settings.textColor = rgb;
+	settings.set("SELECTED_COLOR", channelColor);
+	settings.set("SELECTED_COLOR_RGB", rgb);
 	ColorSwatchTex:SetColorTexture(rgb.r,rgb.g,rgb.b);
 end
 
 function startCustomColorPicking(self)
-	previousSelection = settings.selectedColor;
-	previousColor = settings.textColor;
+	previousSelection = settings.get("SELECTED_COLOR");
+	previousColor = settings.get("SELECTED_COLOR_RGB");
 	UIDropDownMenuButton_OpenColorPicker(self);
 end
 
@@ -110,12 +203,12 @@ function setCustomColor(previousSelection)
 		rgb.r, rgb.g, rgb.b = ColorPickerFrame:GetColorRGB() 
 	end
 	selectColor(nil,"Custom",rgb);
-	settings.customColor = rgb;
+	settings.set("CUSTOM_COLOR", rgb);
 end
 
 function cancelCustomColor()
-	settings.selectedColor = previousSelection;
-	settings.textColor = previousColor;
+	settings.set("SELECTED_COLOR", previousSelection);
+	settings.set("SELECTED_COLOR_RGB", previousColor);
 end
 
 function SetVisibility(self, visible)

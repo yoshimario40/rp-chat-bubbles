@@ -240,7 +240,7 @@ function ChatBubblePool.getChatBubble()
 	newChatBubble:SetWidth(300)
 	newChatBubble:SetHeight(300)
 	newChatBubble:SetMovable(true)
-	newChatBubble:SetFrameStrata("LOW")
+	newChatBubble:SetFrameStrata("LOW");
 	newChatBubble.isAvailable = false
 	table.insert(pool, newChatBubble);
 
@@ -324,8 +324,8 @@ function ChatBubblePool.getChatBubble()
 	nameBox:SetScript("OnTabPressed",function(self) editBox:SetFocus() end);
 	nameBox:SetScript("OnEscapePressed",clearFocusAndSelection);
 	nameBox:SetAlpha(0);
-	nameBox:SetScript("OnEditFocusGained", function(self) self:SetAlpha(1) end);
-	nameBox:SetScript("OnEditFocusLost", function(self) if self:GetText() == "" then self:SetAlpha(0.01) end end);
+	nameBox:SetScript("OnEditFocusGained", function(self) self:SetAlpha(1); nameBox:SetPropagateKeyboardInput(false); end);
+	nameBox:SetScript("OnEditFocusLost", function(self) if self:GetText() == "" then self:SetAlpha(0.01); end; nameBox:SetPropagateKeyboardInput(true); end);
 	--nameBox:SetScript("OnClick", function(self) nameBox:SetFocus() end);
 	nameBox:SetScript("OnEnter", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0.5) end end);
 	nameBox:SetScript("OnLeave", function(self) if nameBox:GetText() == "" and not nameBox:HasFocus() then nameBox:SetAlpha(0) end end);

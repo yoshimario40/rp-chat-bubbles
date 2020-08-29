@@ -2,10 +2,10 @@
 	<Script file="Settings.lua" />
 	<Frame name="SettingsPanel" hidden="true" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
 		<Size>
-			<AbsDimension x="503" y="222" />
+			<AbsDimension x="546" y="270" />
 		</Size>
 		<Anchors>
-			<Anchor point="CENTER" />
+			<Anchor point="CENTER" x="22" y="-24" />
 		</Anchors>
 		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
 			<BackgroundInsets>
@@ -41,19 +41,19 @@
 				<FontString name="totalRP3Header" inherits="GameFontNormalLarge" text="TotalRP3" justifyH="LEFT">
 					<Size x="80" y="20" />
 					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-99" />
+						<Anchor point="TOPLEFT" x="25" y="-145" />
 					</Anchors>
 				</FontString>
 				<FontString name="totalRP3GenerateOptionLabel" inherits="GameFontHighlight" text="Generate chat bubbles for NPC Speeches?" justifyH="LEFT">
 					<Size x="419" y="20" />
 					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-126" />
+						<Anchor point="TOPLEFT" x="25" y="-172" />
 					</Anchors>
 				</FontString>
 				<FontString name="totalRP3GenerateOtherPlayerLabel" inherits="GameFontHighlight" text="Generate chat bubbles for NPC Speeches by other players?" justifyH="LEFT">
 					<Size x="436" y="20" />
 					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-153" />
+						<Anchor point="TOPLEFT" x="25" y="-194" />
 					</Anchors>
 				</FontString>
 				<FontString name="NotInstalledLabel" inherits="GameFontRed" hidden="true" text="(Not Installed)" justifyH="LEFT">
@@ -66,30 +66,32 @@
 				<FontString name="UIReloadWarningLabel" inherits="GameFontRed" hidden="true" text="UI Reload Required." justifyH="LEFT">
 					<Size x="299" y="20" />
 					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-178" />
+						<Anchor point="TOPLEFT" x="25" y="-224" />
+					</Anchors>
+				</FontString>
+				<FontString name="ExtraTextLabel" inherits="GameFontHighlightLeft" text="Add &quot;Target/Self&quot; to the create button's text when holding ctrl/shift">
+					<Size x="462" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-94" />
+					</Anchors>
+				</FontString>
+				<FontString name="SmartColoringLabel" inherits="GameFontHighlightLeft" text="Automatically switch between player and npc colours for Create (Target)">
+					<Size x="462" y="20" />
+					<Anchors>
+						<Anchor point="TOPLEFT" x="25" y="-118" />
 					</Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
 		<Frames>
-			<CheckButton name="DressBlizzBubbleCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="450" y="-62" />
-				</Anchors>
-				<Scripts>
-					<OnClick function="ToggleReloadWarning">
-
-					</OnClick>
-				</Scripts>
-			</CheckButton>
 			<CheckButton name="totalRP3GenerateCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="450" y="-118" />
+					<Anchor point="TOPLEFT" x="493" y="-164" />
 				</Anchors>
 			</CheckButton>
 			<CheckButton name="totalRP3GenerateOtherCheck" inherits="UICheckButtonTemplate" text="CheckButton2">
 				<Anchors>
-					<Anchor point="TOPLEFT" x="450" y="-145" />
+					<Anchor point="TOPLEFT" x="493" y="-188" />
 				</Anchors>
 			</CheckButton>
 			<Button name="OkayButton" inherits="UIPanelButtonTemplate" text="Okay">
@@ -114,6 +116,26 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+			<CheckButton name="SmartColoringCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="493" y="-113" />
+				</Anchors>
+			</CheckButton>
+			<CheckButton name="DressBlizzBubbleCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="493" y="-65" />
+				</Anchors>
+				<Scripts>
+					<OnClick function="ToggleReloadWarning">
+
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="ExtraTextCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="493" y="-89" />
+				</Anchors>
+			</CheckButton>
 		</Frames>
 		<Scripts>
 			<OnLoad function="ConfigureFrameOnRuntime">

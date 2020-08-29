@@ -182,7 +182,7 @@ end
 
 local function onStart(self)
 	settings = Import.settings;
-	if settings.dressBlizzBubbles then
+	if settings.get("DRESS_BLIZZ_BUBBLE") then
 		for _, channel in pairs(MANAGED_CHANNELS) do
 			ChatFrame_AddMessageEventFilter(channel, onChatMessage);
 		end
