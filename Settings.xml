@@ -69,7 +69,7 @@
 						<Anchor point="TOPLEFT" x="25" y="-224" />
 					</Anchors>
 				</FontString>
-				<FontString name="ExtraTextLabel" inherits="GameFontHighlightLeft" text="Add &quot;Target/Self&quot; to the create button's text when holding ctrl/shift">
+				<FontString name="ExtraTextLabel" inherits="GameFontHighlightLeft" text="Update &quot;Create&quot; button text when holding ctrl/shift">
 					<Size x="462" y="20" />
 					<Anchors>
 						<Anchor point="TOPLEFT" x="25" y="-94" />
