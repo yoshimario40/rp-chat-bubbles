@@ -133,6 +133,14 @@ end
 
 local function moveTail(tail)
 	--Note: Since the chat bubble is anchored to the WorldFrame, we shouldn't adjust for UIParent's scale
+	
+	--Vectors Used
+	-- Cursor - The cursor's current X and Y screen coords
+	-- origPoint - Vector of tail's original location relative to its old anchoring point.
+	-- anchoringPointCoords - Vector of new anchoring point in world coords
+	-- oldAnchoringPointCoords - Vector of old anchoring point in world coords
+	-- origPointWorldCoords - Vector of tail's original location in world coords.
+
 	local cursorX, cursorY = GetCursorPosition();  
 	local origPoint = tail.origPoint;
 	local bubble = tail:GetParent();
@@ -142,6 +150,13 @@ local function moveTail(tail)
 	local anchoringPointCoords = getAnchoringPointCoords(bubble, anchoringPoint);
 	local oldAnchoringPointCoords = getAnchoringPointCoords(bubble, origPoint.relativeP);
 	local origPointWorldCoords = addVector(origPoint, oldAnchoringPointCoords);
+	
+	--In this part, we basically only move the x or y based on which side it is on.
+	--The other axis should remain at "0" (plus some offset to align the texture)
+	--This is so the tail remains attached to the bubble. 
+
+	--We also bound the new X/Y so it doesn't go beyond the edge of the bubble.
+	--The minimum X/Y variable determines how much space to leave at the end of the bubble.
 	if closestEdge == "BOTTOM" or closestEdge == "TOP" then
 		local cursorOffset = cursorX - tail.origCursorLoc.x;
 		local newXinWorldCoords = origPointWorldCoords.x + cursorOffset;

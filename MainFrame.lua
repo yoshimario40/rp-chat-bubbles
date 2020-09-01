@@ -115,19 +115,21 @@ function checkSmartTargetColoring()
 	if not settings.get("SMART_COLORING") then
 		return
 	end
-	if IsControlKeyDown() and SayColorSelected() then
+	if IsShiftKeyDown() or IsControlKeyDown() and SayColorSelected() then
 		if not smartTargetColoringActive then
 			smartTargetColoringActive = true;
 			savedColor = settings.get("SELECTED_COLOR");
 			savedRGB = settings.get("SELECTED_COLOR_RGB");
 		end
 
-		if UnitExists("target") then
+		if IsControlKeyDown() and UnitExists("target") then
 			if UnitIsPlayer("target") then
 				selectColor(nil,"Say",ChatTypeInfo["SAY"],nil);
 			else
 				selectColor(nil,"Say (NPC)",ChatTypeInfo["MONSTER_SAY"],nil);
 			end
+		elseif IsShiftKeyDown() then
+			selectColor(nil,"Say",ChatTypeInfo["SAY"],nil);
 		else
 			selectColor(nil,savedColor,savedRGB,nil);
 		end

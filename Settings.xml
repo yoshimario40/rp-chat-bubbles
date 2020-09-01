@@ -75,7 +75,7 @@
 						<Anchor point="TOPLEFT" x="25" y="-94" />
 					</Anchors>
 				</FontString>
-				<FontString name="SmartColoringLabel" inherits="GameFontHighlightLeft" text="Automatically switch between player and npc colours for Create (Target)">
+				<FontString name="SmartColoringLabel" inherits="GameFontHighlightLeft" text="Auto switch between player/npc colours when creating for target/self">
 					<Size x="462" y="20" />
 					<Anchors>
 						<Anchor point="TOPLEFT" x="25" y="-118" />
@@ -95,7 +95,7 @@
 				</Anchors>
 			</CheckButton>
 			<Button name="OkayButton" inherits="UIPanelButtonTemplate" text="Okay">
-				<Size x="245" y="23" />
+				<Size x="253" y="23" />
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="17" y="21" />
 				</Anchors>
@@ -106,9 +106,9 @@
 				</Scripts>
 			</Button>
 			<Button name="CancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
-				<Size x="214" y="23" />
+				<Size x="247" y="23" />
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" x="268" y="21" />
+					<Anchor point="BOTTOMLEFT" x="276" y="21" />
 				</Anchors>
 				<Scripts>
 					<OnClick function="CancelSettings">
