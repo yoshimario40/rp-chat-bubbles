@@ -1,6 +1,6 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Settings.lua" />
-	<Frame name="SettingsPanel" hidden="true" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+	<Frame name="SettingsPanel" hidden="true" parent="UIParent" toplevel="true" movable="true" enableMouse="true" inherits="BackdropTemplate">
 		<Size>
 			<AbsDimension x="546" y="270" />
 		</Size>

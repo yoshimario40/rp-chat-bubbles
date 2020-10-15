@@ -46,6 +46,8 @@ function ConfigureFrameOnRuntime(self, event, ...)
 	self:RegisterForDrag("LeftButton");
 	self:SetScript("OnDragStart",self.StartMoving);
 	self:SetScript("OnDragStop",self.StopMovingOrSizing);
+	self:SetBackdrop(BACKDROP_DIALOG_32_32)
+	self:OnBackdropLoaded()
 end
 
 function ShowSettingsPanel()

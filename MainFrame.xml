@@ -2,7 +2,7 @@
 	<Script file="MainFrame.lua" />
 	<Script file="BlizzChatIntegration.lua" />
 	<Script file="TotalRP3.lua" />
-	<Frame name="MainFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true">
+	<Frame name="MainFrame" parent="UIParent" toplevel="true" movable="true" enableMouse="true" inherits="BackdropTemplate">
 		<Size x="187" y="76" />
 		<Anchors>
 			<Anchor point="CENTER" x="-7" y="29" />

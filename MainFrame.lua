@@ -17,6 +17,8 @@ function RPChatBubbles_OnLoad(self, event,...)
     self:RegisterEvent("ADDON_LOADED");
 	self:RegisterEvent("MODIFIER_STATE_CHANGED");
 	self:RegisterEvent("PLAYER_TARGET_CHANGED");
+	self:SetBackdrop(BACKDROP_DIALOG_32_32)
+	self:OnBackdropLoaded()
 end
 
 function RPChatBubbles_OnEvent(self, event, ...) 

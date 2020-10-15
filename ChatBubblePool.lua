@@ -281,7 +281,7 @@ function ChatBubblePool.getChatBubble()
 
 	newChatBubble.editBox = editBox;
 
-	local chatBubbleBackground = CreateFrame("Button",frameName.."Background",editBox);
+	local chatBubbleBackground = CreateFrame("Button",frameName.."Background",editBox, "BackdropTemplate");
 	chatBubbleBackground:SetBackdrop({
 		bgFile="Interface\\Tooltips\\CHATBUBBLE-BACKGROUND.BLP", 
 		edgeFile="Interface\\Tooltips\\CHATBUBBLE-BACKDROP.BLP", 
@@ -400,14 +400,14 @@ function ChatBubblePool.getChatBubble()
 
 	local chatBubbleTail = CreateFrame("Frame",frameName.."-tail",chatBubbleBackground)
 	chatBubbleTail:SetSize(16,16)
-	chatBubbleTail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3)
 	chatBubbleTail.tex = chatBubbleTail:CreateTexture(frameName.."-tailTexture","BACKGROUND");
 	chatBubbleTail.tex:SetTexture("Interface\\Tooltips\\CHATBUBBLE-TAIL.BLP");
 	chatBubbleTail.tex:SetAllPoints();
-	chatBubbleTail.bottomOffset = 3;
+	chatBubbleTail.bottomOffset = 5;
 	chatBubbleTail.topOffset = -3;
 	chatBubbleTail.leftOffset = 3;
-	chatBubbleTail.rightOffset = -3;
+	chatBubbleTail.rightOffset = -5;
+	chatBubbleTail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,chatBubbleTail.bottomOffset)
 	chatBubbleTail.minX = 8;
 	chatBubbleTail.minY = 8;
 	chatBubbleTail.side = "BOTTOM";

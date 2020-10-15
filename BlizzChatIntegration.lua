@@ -47,8 +47,12 @@ local function printTable(t, depth)
 end 
 
 local function getChatBubbleText(chatBubble)
-	for i = 1, chatBubble:GetNumRegions() do
-		local region = select(i, chatBubble:GetRegions())
+	--9.0.1 put frame data into a child of the bubble. I think this is a part of the backdrop api change. But anyway,
+	--we're just going to assume that the frame data is the first element of the chat bubble table. 
+	chatBubbleFrame = select(1,chatBubble:GetChildren());
+	for i = 1, chatBubbleFrame:GetNumRegions() do
+		local region = select(i, chatBubbleFrame:GetRegions())
+		print("52"..(region:GetObjectType() or "nil"))
 		if region:GetObjectType() == "FontString" then
 			return region:GetText()
 		end
@@ -56,8 +60,9 @@ local function getChatBubbleText(chatBubble)
 end 
 
 local function getNamedPoint(chatBubble,pointName)
-	for i = 1, chatBubble:GetNumPoints() do
-		local point, relativeTo, relativePoint, xOfs, yOfs = chatBubble:GetPoint(i);
+	local chatBubbleFrame = select(1, chatBubble:GetChildren());
+	for i = 1, chatBubbleFrame:GetNumPoints() do
+		local point, relativeTo, relativePoint, xOfs, yOfs = chatBubbleFrame:GetPoint(i);
 		if point == pointName then
 			return relativeTo, relativePoint, xOfs, yOfs;
 		end 
@@ -68,6 +73,7 @@ local function skinBubble(chatBubble)
 	local message = getChatBubbleText(chatBubble);
 	local name = messageToSender[message]
 
+
 	local NameText = CreateFrame("EditBox","BlizzBoxNameText",chatBubble);
 	NameText:SetFrameStrata("MEDIUM"); --This is the default but better to be explicit
 	--NameText:SetMultiLine(true);
@@ -77,6 +83,7 @@ local function skinBubble(chatBubble)
 	--NameText:SetPoint("CENTER");
 	NameText:SetPoint("BOTTOMLEFT",chatBubble,"TOPLEFT",13,2);
 	NameText:SetFontObject("GameFontNormal");
+	print(name)
 	NameText:SetText(name);
 	--local tex = NameText:CreateTexture(nil,"ARTWORK");
 	--tex:SetAllPoints()
@@ -112,19 +119,24 @@ local function skinBubble(chatBubble)
 		local nameWidth = NameText.stringMeasure:GetWidth();
 		NameBg:SetWidth(nameWidth);
 		local stringWidth = self.string:GetWidth();
-		local expectedWidth = stringWidth + 32;
-		local requiredWidthForName = nameWidth + 13 + 2 + 16;
+		local expectedWidth = stringWidth + 32; --32 is adjustment for left and right corners
+		local requiredWidthForName = nameWidth + 32; 
 		local defaultXOfs = self.defaultXOfs;
 		local relativeTo, relativePoint, xOfs, yOfs = getNamedPoint(self,"BOTTOMRIGHT");
 		local currHeight = self:GetHeight();
+		print(xOfs, yOfs)
+		local frame = select(1, chatBubble:GetChildren()); 
 		if ( expectedWidth < requiredWidthForName ) then
 			local adj = (requiredWidthForName - expectedWidth)/2;
-			self:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-(defaultXOfs+adj),-yOfs);
-			self:SetPoint("BOTTOMRIGHT",relativeTo,"BOTTOMRIGHT",defaultXOfs+adj,yOfs);
+			print("More width needed. adj=" .. adj);
+			frame:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-(defaultXOfs+adj),-yOfs);
+			frame:SetPoint("BOTTOMRIGHT",relativeTo,"BOTTOMRIGHT",defaultXOfs+adj,yOfs);
 		else
-			self:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-defaultXOfs,-yOfs);
-			self:SetPoint("BOTTOMRIGHT",relativeTo,relativePoint,defaultXOfs,yOfs);
+			frame:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-defaultXOfs,-yOfs);
+			frame:SetPoint("BOTTOMRIGHT",relativeTo,relativePoint,defaultXOfs,yOfs);
 		end
+		local _, _, newX, newY = getNamedPoint(self,"BOTTOMRIGHT");
+		print(newX, newY);
 	end
 	chatBubble:fixWidth();
 
@@ -139,7 +151,7 @@ local function skinBubble(chatBubble)
 end
 
 local function checkBubbles(chatBubbles)
-	--chatBubbles is an indexed array of frames
+	--chatBubbles is an indexed array of frames with one or more children bubbles
 	for _, chatBubble in pairs(chatBubbles) do
 		--7.2.5 disabled chatbubble skinning in dungeons and raids
 		if not chatBubble:IsForbidden() then
