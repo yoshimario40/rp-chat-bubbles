@@ -52,7 +52,6 @@ local function getChatBubbleText(chatBubble)
 	chatBubbleFrame = select(1,chatBubble:GetChildren());
 	for i = 1, chatBubbleFrame:GetNumRegions() do
 		local region = select(i, chatBubbleFrame:GetRegions())
-		print("52"..(region:GetObjectType() or "nil"))
 		if region:GetObjectType() == "FontString" then
 			return region:GetText()
 		end
@@ -83,7 +82,6 @@ local function skinBubble(chatBubble)
 	--NameText:SetPoint("CENTER");
 	NameText:SetPoint("BOTTOMLEFT",chatBubble,"TOPLEFT",13,2);
 	NameText:SetFontObject("GameFontNormal");
-	print(name)
 	NameText:SetText(name);
 	--local tex = NameText:CreateTexture(nil,"ARTWORK");
 	--tex:SetAllPoints()
@@ -119,16 +117,14 @@ local function skinBubble(chatBubble)
 		local nameWidth = NameText.stringMeasure:GetWidth();
 		NameBg:SetWidth(nameWidth);
 		local stringWidth = self.string:GetWidth();
-		local expectedWidth = stringWidth + 32; --32 is adjustment for left and right corners
+		local expectedWidth = stringWidth + 32;
 		local requiredWidthForName = nameWidth + 32; 
 		local defaultXOfs = self.defaultXOfs;
 		local relativeTo, relativePoint, xOfs, yOfs = getNamedPoint(self,"BOTTOMRIGHT");
 		local currHeight = self:GetHeight();
-		print(xOfs, yOfs)
 		local frame = select(1, chatBubble:GetChildren()); 
 		if ( expectedWidth < requiredWidthForName ) then
 			local adj = (requiredWidthForName - expectedWidth)/2;
-			print("More width needed. adj=" .. adj);
 			frame:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-(defaultXOfs+adj),-yOfs);
 			frame:SetPoint("BOTTOMRIGHT",relativeTo,"BOTTOMRIGHT",defaultXOfs+adj,yOfs);
 		else
@@ -136,7 +132,6 @@ local function skinBubble(chatBubble)
 			frame:SetPoint("BOTTOMRIGHT",relativeTo,relativePoint,defaultXOfs,yOfs);
 		end
 		local _, _, newX, newY = getNamedPoint(self,"BOTTOMRIGHT");
-		print(newX, newY);
 	end
 	chatBubble:fixWidth();
 
