@@ -259,11 +259,11 @@ function ChatBubblePool.getChatBubble()
 	newChatBubble.isAvailable = false
 	table.insert(pool, newChatBubble);
 
-	--chatBubbleTail:EnableMouse(true)
-	--chatBubbleTail:SetMovable(true)
-	--chatBubbleTail:RegisterForDrag("LeftButton")
-	--chatBubbleTail:SetScript("OnDragStart", function(self) self:StartMoving() end)
-	--chatBubbleTail:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+	--tail:EnableMouse(true)
+	--tail:SetMovable(true)
+	--tail:RegisterForDrag("LeftButton")
+	--tail:SetScript("OnDragStart", function(self) self:StartMoving() end)
+	--tail:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
 
 	local editBox = CreateFrame("EditBox",frameName.."-EditBox",newChatBubble);
 	editBox:SetPoint("TOPLEFT",newChatBubble);
@@ -398,33 +398,33 @@ function ChatBubblePool.getChatBubble()
 	nameBoxColorPicker:SetScript("OnLeave", function(self) self:SetAlpha(0.01) end);
 	nameBoxColorPicker:SetScript("OnClick", function(self) if nameBox:GetText() ~= "" then pickNameColor(newChatBubble) end; end);
 
-	local chatBubbleTail = CreateFrame("Frame",frameName.."-tail",chatBubbleBackground)
-	chatBubbleTail:SetSize(16,16)
-	chatBubbleTail.tex = chatBubbleTail:CreateTexture(frameName.."-tailTexture","BACKGROUND");
-	chatBubbleTail.tex:SetTexture("Interface\\Tooltips\\CHATBUBBLE-TAIL.BLP");
-	chatBubbleTail.tex:SetAllPoints();
-	chatBubbleTail.bottomOffset = 5;
-	chatBubbleTail.topOffset = -3;
-	chatBubbleTail.leftOffset = 3;
-	chatBubbleTail.rightOffset = -5;
-	chatBubbleTail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,chatBubbleTail.bottomOffset)
-	chatBubbleTail.minX = 8;
-	chatBubbleTail.minY = 8;
-	chatBubbleTail.side = "BOTTOM";
-	chatBubbleTail.Reset = function(self) 
+	local tail = CreateFrame("Frame",frameName.."-tail",chatBubbleBackground)
+	tail:SetSize(16,16)
+	tail.tex = tail:CreateTexture(frameName.."-tailTexture","BACKGROUND");
+	tail.tex:SetTexture("Interface\\Tooltips\\CHATBUBBLE-TAIL.BLP");
+	tail.tex:SetAllPoints();
+	tail.bottomOffset = 5;
+	tail.topOffset = -3;
+	tail.leftOffset = 3;
+	tail.rightOffset = -5;
+	tail.minX = 8;
+	tail.minY = 8;
+	tail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",tail.minX,tail.bottomOffset)
+	tail.side = "BOTTOM";
+	tail.Reset = function(self) 
 		self.tex:SetRotation(0);
 		self:ClearAllPoints();
-		self:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",8,3);
+		self:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",tail.minX,tail.bottomOffset);
 		self.tail = "BOTTOM"
 	end
 
-	local chatBubbleTailCatcher = CreateFrame("Button",frameName.."-tailButtonCatcher",chatBubbleTail);
+	local chatBubbleTailCatcher = CreateFrame("Button",frameName.."-tailButtonCatcher",tail);
 	chatBubbleTailCatcher:SetAllPoints();
-	chatBubbleTailCatcher:SetScript("OnMouseDown",function(self, button) startMovingTail(chatBubbleTail, button) end);
-	chatBubbleTailCatcher:SetScript("OnMouseUp",function(self, button) stopMovingTail(chatBubbleTail, button) end);
+	chatBubbleTailCatcher:SetScript("OnMouseDown",function(self, button) startMovingTail(tail, button) end);
+	chatBubbleTailCatcher:SetScript("OnMouseUp",function(self, button) stopMovingTail(tail, button) end);
 	chatBubbleTailCatcher:SetFrameStrata("HIGH");
 
-	newChatBubble.tail = chatBubbleTail;
+	newChatBubble.tail = tail;
 
 	--Functions for outside use
 	newChatBubble.GetName = nameBox.GetText;
