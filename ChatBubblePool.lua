@@ -255,7 +255,8 @@ function ChatBubblePool.getChatBubble()
 	newChatBubble:SetWidth(300)
 	newChatBubble:SetHeight(300)
 	newChatBubble:SetMovable(true)
-	newChatBubble:SetFrameStrata("FULLSCREEN");
+	newChatBubble:SetFrameStrata("HIGH");
+	newChatBubble:SetFrameLevel(20);
 	newChatBubble.isAvailable = false
 	table.insert(pool, newChatBubble);
 
@@ -292,7 +293,7 @@ function ChatBubblePool.getChatBubble()
 	chatBubbleBackground:SetPoint("BOTTOMLEFT",editBox,"CENTER",-16,-16);
 	chatBubbleBackground.padding = 32;
 	chatBubbleBackground:SetWidth(64 + chatBubbleBackground.padding);
-	chatBubbleBackground:SetFrameStrata("HIGH");
+	chatBubbleBackground:SetFrameLevel(10);
 	chatBubbleBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
 	chatBubbleBackground:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
 	chatBubbleBackground:SetScript("OnClick", function(self) editBox:SetFocus() end);
@@ -314,7 +315,7 @@ function ChatBubblePool.getChatBubble()
 
 
 	local closeButton = CreateFrame("Button",frameName.."-CloseButton",chatBubbleBackground,"UIPanelCloseButton")
-	closeButton:SetFrameStrata("FULLSCREEN");
+	closeButton:SetFrameLevel("21");
 	closeButton:SetPoint("CENTER",chatBubbleBackground,"TOPRIGHT",-4,-4);
 	closeButton:SetScript("OnClick",function(self) closeBubble(newChatBubble) end);
 	closeButton:SetScript("OnEnter",function(self) closeButton:SetAlpha(1) end);
@@ -351,7 +352,7 @@ function ChatBubblePool.getChatBubble()
 	nameBoxBackground:SetPoint("BOTTOMLEFT",nameBox,"BOTTOMLEFT",-paddingL,-nameBox.margin.D)
 	nameBoxBackground:SetPoint("TOPLEFT",nameBox,"TOPLEFT",-paddingL,nameBox.margin.T + 12);
 	nameBoxBackground:SetWidth(32);
-	nameBoxBackground:SetFrameStrata("HIGH");
+	nameBoxBackground:SetFrameLevel("12");
 	nameBoxBackground:SetScript("OnClick", function(self) nameBox:SetFocus() end);
 	nameBoxBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
 	nameBoxBackground:SetScript("OnMouseUp", function(self) newChatBubble:StopMovingOrSizing() end )
@@ -383,7 +384,7 @@ function ChatBubblePool.getChatBubble()
 	
 	local nameBoxColorPicker = CreateFrame("Button",frameName.."-ColorPickerButton",newChatBubble);
 	nameBoxColorPicker:SetSize(16,16);
-	nameBoxColorPicker:SetFrameStrata("FULLSCREEN_DIALOG") -- Needs to be higher than the EditBox to override it
+	nameBoxColorPicker:SetFrameLevel("25") -- Needs to be higher than the EditBox to override it
 	nameBox.colorPickerTex = nameBoxColorPicker:CreateTexture(frameName.."-ColorPickerButton-color","ARTWORK")
 	nameBox.colorPickerTex:SetPoint("TOPLEFT",2,-2);
 	nameBox.colorPickerTex:SetPoint("BOTTOMRIGHT",-2,2);
@@ -422,7 +423,7 @@ function ChatBubblePool.getChatBubble()
 	chatBubbleTailCatcher:SetAllPoints();
 	chatBubbleTailCatcher:SetScript("OnMouseDown",function(self, button) startMovingTail(tail, button) end);
 	chatBubbleTailCatcher:SetScript("OnMouseUp",function(self, button) stopMovingTail(tail, button) end);
-	chatBubbleTailCatcher:SetFrameStrata("TOOLTIP");
+	chatBubbleTailCatcher:SetFrameLevel(50);
 
 	newChatBubble.tail = tail;
 
