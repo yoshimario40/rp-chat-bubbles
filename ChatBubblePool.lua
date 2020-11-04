@@ -434,8 +434,7 @@ function ChatBubblePool.getChatBubble()
 		nameBox:SetText(name); 
 		if (name ~= "" ) then 
 			nameBox:SetAlpha(1) 
-		else 
-			print("Setting alpha to 0");
+		else
 			nameBox:SetAlpha(0); 
 		end; 
 	end;
