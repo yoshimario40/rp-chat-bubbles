@@ -429,7 +429,16 @@ function ChatBubblePool.getChatBubble()
 
 	--Functions for outside use
 	newChatBubble.GetName = nameBox.GetText;
-	newChatBubble.SetName = function(self,name) nameBox:SetText(name); if (name ~= "" ) then nameBox:SetAlpha(1); end; end;
+	newChatBubble.SetName = function(self,name) 
+		if (name == nil) then name = ""; end; 
+		nameBox:SetText(name); 
+		if (name ~= "" ) then 
+			nameBox:SetAlpha(1) 
+		else 
+			print("Setting alpha to 0");
+			nameBox:SetAlpha(0); 
+		end; 
+	end;
 	newChatBubble.GetMessage = editBox.GetText;
 	newChatBubble.SetMessage = function(self,message) editBox:SetText(message) end;
 	newChatBubble.GetNameColor = function(self) return nameBox:GetTextColor() end;

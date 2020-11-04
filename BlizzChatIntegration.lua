@@ -71,7 +71,9 @@ end
 local function skinBubble(chatBubble)
 	local message = getChatBubbleText(chatBubble);
 	local name = messageToSender[message]
-
+	if (name == nil) then
+		name = "";
+	end
 
 	local NameText = CreateFrame("EditBox","BlizzBoxNameText",chatBubble);
 	NameText:SetFrameStrata("MEDIUM"); --This is the default but better to be explicit
@@ -82,12 +84,10 @@ local function skinBubble(chatBubble)
 	--NameText:SetPoint("CENTER");
 	NameText:SetPoint("BOTTOMLEFT",chatBubble,"TOPLEFT",13,2);
 	NameText:SetFontObject("GameFontNormal");
-	NameText:SetText(name);
 	--local tex = NameText:CreateTexture(nil,"ARTWORK");
 	--tex:SetAllPoints()
 	--tex:SetTexture(255,255,255);
 	NameText.stringMeasure = NameText:CreateFontString(nil,"OVERLAY","GameFontNormal");
-	NameText.stringMeasure:SetText(name);
 
 	local NameBg = CreateFrame("Frame","BlizzBubbleNameBG",NameText);
 	NameBg:SetPoint("TOPLEFT",-1,14);
@@ -133,14 +133,19 @@ local function skinBubble(chatBubble)
 		end
 		local _, _, newX, newY = getNamedPoint(self,"BOTTOMRIGHT");
 	end
-	chatBubble:fixWidth();
 
 	chatBubble.nameText = NameText;
 	chatBubble.SetName = function(self,text)
 		NameText:SetText(text) 
 		NameText.stringMeasure:SetText(text);
+		if (text == "") then
+			NameText:SetAlpha(0);
+		else
+			NameText:SetAlpha(1);
+		end
 		self:fixWidth();
 	end;
+	chatBubble:SetName(name);
 	chatBubble.rpSkinned = true;
 	numBubbles = numBubbles + 1;
 end
@@ -154,7 +159,11 @@ local function checkBubbles(chatBubbles)
 				skinBubble(chatBubble)
 			else
 				local message = getChatBubbleText(chatBubble)
-				chatBubble:SetName(messageToSender[message])
+				local sender = messageToSender[message]
+				if sender == nil then
+					sender = "";
+				end
+				chatBubble:SetName(sender)
 			end
 		end
 	end
@@ -173,7 +182,10 @@ end)
 
 local function onChatMessage(_, event, message, sender, ...)
 	local name = GetColoredName(event, message, sender, ...);
-	messageToSender[message] = name;
+	messageInBubble = message:gsub("|c%w%w%w%w%w%w%w%w(.*)|r","%1"); --Replace colours
+	messageInBubble = messageInBubble:gsub("|H.*|h%[(.*)%]|h", "%1") --Replace hyperlinks
+	messageInBubble, count = messageInBubble:gsub("{rt(%d)}","|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%1:0|t"); --Replace raid icons
+	messageToSender[messageInBubble] = name;
 	--At the time of the chat event, the chat bubble hasn't been created yet. So we'll wait 0.01 seconds before looking for chat bubbles to skin.
 	Timer:Start();
 	return false, message, sender, ...
