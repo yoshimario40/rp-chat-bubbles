@@ -184,7 +184,7 @@ local function onChatMessage(_, event, message, sender, ...)
 	local name = GetColoredName(event, message, sender, ...);
 	messageInBubble = message:gsub("|c%w%w%w%w%w%w%w%w(.*)|r","%1"); --Replace colours
 	messageInBubble = messageInBubble:gsub("|H.*|h%[(.*)%]|h", "%1") --Replace hyperlinks
-	messageInBubble, count = messageInBubble:gsub("{rt(%d)}","|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%1:0|t"); --Replace raid icons
+	messageInBubble, count = messageInBubble:gsub("{rt[1-8]}","|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%1:0|t"); --Replace raid icons
 	messageToSender[messageInBubble] = name;
 	--At the time of the chat event, the chat bubble hasn't been created yet. So we'll wait 0.01 seconds before looking for chat bubbles to skin.
 	Timer:Start();
