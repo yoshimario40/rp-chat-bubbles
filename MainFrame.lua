@@ -66,6 +66,8 @@ function RPChatBubbles_createChatBubble()
 			if color then
 				bubble:SetNameColor(color:GetRGB());
 			end
+		else 
+			bubble:SetName("");
 		end
 	end
 end
