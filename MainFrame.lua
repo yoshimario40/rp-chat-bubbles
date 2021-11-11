@@ -119,7 +119,7 @@ function checkSmartTargetColoring()
 	if not settings.get("SMART_COLORING") then
 		return
 	end
-	if IsShiftKeyDown() or IsControlKeyDown() and SayColorSelected() then
+	if (IsShiftKeyDown() or IsControlKeyDown()) and SayColorSelected() then
 		if not smartTargetColoringActive then
 			smartTargetColoringActive = true;
 			savedColor = settings.get("SELECTED_COLOR");
