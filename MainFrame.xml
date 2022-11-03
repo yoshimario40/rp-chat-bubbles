@@ -7,20 +7,9 @@
 		<Anchors>
 			<Anchor point="CENTER" x="-7" y="29" />
 		</Anchors>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="11" right="12" top="12" bottom="11" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="32" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="32" />
-			</EdgeSize>
-		</Backdrop>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString inherits="GameFontNormal" text="RP Chat Bubbles">
+				<FontString inherits="GameFontNormal" text="Speaker Bee">
 					<Size x="103" y="20" />
 					<Anchors>
 						<Anchor point="TOPLEFT" x="25" y="-14" />
@@ -35,7 +24,7 @@
 					<Anchor point="TOPLEFT" x="15" y="-35" />
 				</Anchors>
 				<Frames>
-					<Frame text="" name="ColorDropdownButton" inherits="UIDropDownMenuTemplate">
+					<Frame name="ColorDropdownButton" inherits="UIDropDownMenuTemplate">
 						<Size x="20" y="23" />
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="CreateButton" relativePoint="TOPRIGHT" x="-16" y="0" />

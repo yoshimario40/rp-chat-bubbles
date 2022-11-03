@@ -17,16 +17,17 @@ function RPChatBubbles_OnLoad(self, event,...)
     self:RegisterEvent("ADDON_LOADED");
 	self:RegisterEvent("MODIFIER_STATE_CHANGED");
 	self:RegisterEvent("PLAYER_TARGET_CHANGED");
-	self:SetBackdrop(BACKDROP_DIALOG_32_32)
-	self:OnBackdropLoaded()
+	self:SetBackdrop(BACKDROP_DIALOG_32_32);
+	self:OnBackdropLoaded();
 end
 
 function RPChatBubbles_OnEvent(self, event, ...) 
-     if event == "ADDON_LOADED" and ... == ADDON_NAME then
+	if event == "ADDON_LOADED" and ... == ADDON_NAME then
 		Import:initSettings();
 		settings = Import.settings;
 		sharedFunctions = Import.SharedFunctions;
 		initMainFrame(self);
+		ChatBubblePool:OnStart();
 		for moduleName, moduleStructure in pairs(Import.modules) do
 			moduleStructure:OnStart();
 		end
@@ -39,11 +40,11 @@ function RPChatBubbles_OnEvent(self, event, ...)
 end
 
 function RPChatBubbles_createChatBubble()
+	PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON);
 	local bubble = ChatBubblePool.getChatBubble();
 	local textColor = settings.get("SELECTED_COLOR_RGB");
 	local selectedColor = settings.get("SELECTED_COLOR");
 	local GetUnitNameAndColor = Import.SharedFunctions.GetUnitNameAndColor;
-	
 
 	local unitID = nil;
 
@@ -58,7 +59,7 @@ function RPChatBubbles_createChatBubble()
 	--If we are trying to populate the name field using shift or control, then enter this block. 
 	--The method used will depend on whether TotalRP3 is installed or not
 	if unitID then
-		name, color = GetUnitNameAndColor(unitID);
+		local name, color = GetUnitNameAndColor(unitID);
 		if name then
 			bubble:SetName(name);
 			-- The Color will only be populated if TotalRP3 is enabled. 
@@ -66,7 +67,7 @@ function RPChatBubbles_createChatBubble()
 			if color then
 				bubble:SetNameColor(color:GetRGB());
 			end
-		else 
+		else
 			bubble:SetName("");
 		end
 	end
@@ -78,6 +79,7 @@ function RPChatBubbles_toggleVisibility()
 	else
 		settings.set("IS_FRAME_VISIBLE", true);
 	end
+	PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON);
 	SetVisibility(MainFrame, settings.get("IS_FRAME_VISIBLE"));
 end
 
@@ -99,7 +101,7 @@ function initMainFrame(self)
 	self:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing();
 	end);
-	SetVisibility(self, settings.get("IS_FRAME_VISIBLE"));
+	SetVisibility(self, settings.get("IS_FRAME_VISIBLE"), true);
 end
 
 function handleKeyPress()
@@ -217,7 +219,7 @@ function cancelCustomColor()
 	settings.set("SELECTED_COLOR_RGB", previousColor);
 end
 
-function SetVisibility(self, visible)
+function SetVisibility(self, visible, init)
 	if visible then
 		self:SetAlpha(1.0);
 		removeVisibilityScripts(MainFrame);
@@ -225,15 +227,16 @@ function SetVisibility(self, visible)
 		removeVisibilityScripts(SettingsButton);
 		removeVisibilityScripts(HideButton);
 		removeVisibilityScripts(ColorDropdownButton);
-		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-hideButton");
+		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-showButton");
 	else
-		self:SetAlpha(0.5);
+		local showShadow = (not init) or settings.get("SHADOW_LOAD");
+		self:SetAlpha(showShadow and 0.5 or 0);
 		addVisibilityScripts(MainFrame);
 		addVisibilityScripts(CreateButton);
 		addVisibilityScripts(SettingsButton);
 		addVisibilityScripts(HideButton);
 		addVisibilityScripts(ColorDropdownButton);
-		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-showButton");
+		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-hideButton");
 	end
 end
 

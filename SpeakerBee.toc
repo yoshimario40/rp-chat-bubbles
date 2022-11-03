@@ -1,7 +1,7 @@
-## Title: RoleplayChatBubbles
+## Title: Speaker Bee
 ## Version: 1.0
 ## Author: Christopher Tse
-## Interface: 90207
+## Interface: 100000
 ## OptionalDeps: totalRP3
 ## SavedVariablesPerCharacter: settings
 

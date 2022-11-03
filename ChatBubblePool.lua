@@ -3,10 +3,15 @@
 
 local ADDON_NAME, Import = ...;
 
+local settings;
 local pool = {}
 
 Import.ChatBubblePool = {};
 local ChatBubblePool = Import.ChatBubblePool
+
+local function OnStart(self)
+	settings = Import.settings;
+end
 
 local function setChatBubbleWidth(chatBubbleBg, parent, width)
 	chatBubbleBg:SetPoint("TOPLEFT",parent,"TOP",-width/2,16);
@@ -66,6 +71,7 @@ local function closeBubble(chatBubble)
 	chatBubble:Hide();
 	chatBubble:SetMessage("");
 	chatBubble:SetName("");
+	PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON);
 
 	chatBubble.nameBox:SetAlpha(0.01)
 	chatBubble:ClearAllPoints();
@@ -239,16 +245,7 @@ local function clearFocusAndSelection(editBox)
 	editBox:HighlightText(0,0);
 end 
 
-function ChatBubblePool.getChatBubble()
-	for index, chatBubble in ipairs(pool) do
-		if chatBubble.isAvailable then
-			chatBubble:Show()
-			chatBubble.isAvailable = false;
-			return chatBubble
-		end
-	end
-
-	-- If we got here, there isn't any available chat bubble so create a new one
+local function createChatBubble(fontSize)
 	local frameName = "RPChatBubble" .. #pool
 
 	local newChatBubble = CreateFrame("Frame",frameName,nil)
@@ -268,13 +265,16 @@ function ChatBubblePool.getChatBubble()
 
 	local editBox = CreateFrame("EditBox",frameName.."-EditBox",newChatBubble);
 	editBox:SetPoint("TOPLEFT",newChatBubble);
-	editBox:SetPoint("TOPRIGHT",newChatBubble); 
+	editBox:SetPoint("TOPRIGHT",newChatBubble);
 	editBox:SetMultiLine(true);
 	editBox:SetAutoFocus(false);
 	editBox:SetFontObject("ChatBubbleFont");
 	editBox:SetJustifyH("CENTER");
 	editBox:SetScript("OnEnterPressed", function(self) if IsShiftKeyDown() then self:Insert("\n") else self:ClearFocus() end end);
 	editBox:SetScript("OnEscapePressed",clearFocusAndSelection);
+
+	local fontPath, _, fontFlags = editBox:GetFont();
+	editBox:SetFont(fontPath, fontSize, fontFlags);
 	--Apparently, the below code stops the user from being able to change the cursor location
 	--editBox:EnableMouse(true)
 	--editBox:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
@@ -303,7 +303,8 @@ function ChatBubblePool.getChatBubble()
 	--We use an invisible FontString to measure the length of the text inside the edit box.
 	editBox.stringMeasure = editBox:CreateFontString(nil,"OVERLAY","ChatBubbleFont");
 	editBox.stringMeasure:SetAlpha(0);
-	editBox:SetScript("OnTextChanged", function(self) 
+	editBox.stringMeasure:SetFont(fontPath, fontSize, fontFlags);
+	editBox:SetScript("OnTextChanged", function(self)
 	    editBox.stringMeasure:SetText(self:GetText());
 		adjustChatBubbleWidth(newChatBubble);
 		checkTailBounds(newChatBubble);
@@ -311,8 +312,7 @@ function ChatBubblePool.getChatBubble()
 
 	--This is a hack that centers the newChatBubble using the center of the editbox
 	newChatBubble.center = { x=chatBubbleBackground:GetWidth()/2, y=chatBubbleBackground:GetHeight()/2 };
-	newChatBubble:SetPoint("TOP",WorldFrame,"CENTER",0,newChatBubble.center.y);
-
+	newChatBubble:SetPoint("TOP", WorldFrame, "CENTER", 0, newChatBubble.center.y);
 
 	local closeButton = CreateFrame("Button",frameName.."-CloseButton",chatBubbleBackground,"UIPanelCloseButton")
 	closeButton:SetFrameLevel("21");
@@ -368,7 +368,7 @@ function ChatBubblePool.getChatBubble()
 		adjustNameBoxWidth(newChatBubble)
 		adjustChatBubbleWidth(newChatBubble)
 	end);
-	
+
 	local midTex = nameBoxBackground:CreateTexture("nameBoxBackgroundTex-middle","BACKGROUND");
 	midTex:SetTexture("Interface/CHATFRAME/ChatFrameTab-BGMid.blp");
 	midTex:SetPoint("TOPLEFT",16,0);
@@ -381,7 +381,7 @@ function ChatBubblePool.getChatBubble()
 	rightTex:SetTexture("Interface/CHATFRAME/ChatFrameTab-BGRight.blp");
 	rightTex:SetPoint("TOPLEFT",midTex,"TOPRIGHT");
 	rightTex:SetPoint("BOTTOMLEFT",midTex,"BOTTOMRIGHT");
-	
+
 	local nameBoxColorPicker = CreateFrame("Button",frameName.."-ColorPickerButton",newChatBubble);
 	nameBoxColorPicker:SetSize(16,16);
 	nameBoxColorPicker:SetFrameLevel("25") -- Needs to be higher than the EditBox to override it
@@ -412,7 +412,7 @@ function ChatBubblePool.getChatBubble()
 	tail.minY = 8;
 	tail:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",tail.minX,tail.bottomOffset)
 	tail.side = "BOTTOM";
-	tail.Reset = function(self) 
+	tail.Reset = function(self)
 		self.tex:SetRotation(0);
 		self:ClearAllPoints();
 		self:SetPoint("TOPLEFT",chatBubbleBackground,"BOTTOMLEFT",tail.minX,tail.bottomOffset);
@@ -429,13 +429,13 @@ function ChatBubblePool.getChatBubble()
 
 	--Functions for outside use
 	newChatBubble.GetName = nameBox.GetText;
-	newChatBubble.SetName = function(self,name) 
-		if (name == nil) then name = ""; end; 
-		nameBox:SetText(name); 
+	newChatBubble.SetName = function(self,name)
+		if (name == nil) then name = ""; end;
+		nameBox:SetText(name);
 		if (name ~= "" ) then 
-			nameBox:SetAlpha(1) 
+			nameBox:SetAlpha(1)
 		else
-			nameBox:SetAlpha(0); 
+			nameBox:SetAlpha(0);
 		end; 
 	end;
 	newChatBubble.GetMessage = editBox.GetText;
@@ -444,11 +444,29 @@ function ChatBubblePool.getChatBubble()
 	newChatBubble.SetNameColor = function(self,r,g,b) nameBox:SetTextColor(r,g,b); nameBox.colorPickerTex:SetColorTexture(r,g,b) end;
 	newChatBubble.GetTextColor = function(self) return editBox:GetTextColor() end;
 	newChatBubble.SetTextColor = function(self,r,g,b) editBox:SetTextColor(r,g,b) end;
+	newChatBubble.SetFontSize = function(self,fontSize) 
+		editBox:SetFont(fontPath, fontSize, fontFlags);
+		editBox.stringMeasure:SetFont(fontPath, fontSize, fontFlags);
+	end
 
 	local origR,origG,origB = nameBox:GetTextColor();
 	newChatBubble.ResetNameColor = function(self) self:SetNameColor(origR,origG,origB); end;
 
 	return newChatBubble
+end
+
+function ChatBubblePool.getChatBubble()
+	for index, chatBubble in ipairs(pool) do
+		if chatBubble.isAvailable then
+			chatBubble:Show();
+			chatBubble.isAvailable = false;
+			chatBubble:SetFontSize(settings.get("FONT_SIZE"));
+			return chatBubble
+		end
+	end
+
+	-- If we got here, there isn't any available chat bubble so create a new one
+	return createChatBubble(settings.get("FONT_SIZE"));
 end
 
 local function doEvent(self, event, ...)
@@ -466,3 +484,5 @@ frame:RegisterEvent("PLAY_MOVIE");
 frame:RegisterEvent("CINEMATIC_START");
 frame:RegisterEvent("CINEMATIC_STOP");
 frame:SetScript("OnEvent",doEvent);
+
+Import.ChatBubblePool.OnStart = OnStart;

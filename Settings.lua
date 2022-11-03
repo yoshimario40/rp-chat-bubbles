@@ -8,14 +8,21 @@ defaultValue = {
 	DRESS_BLIZZ_BUBBLE = true,
 	SMART_COLORING = true,
 	CREATE_BUTTON_EXTRA_TEXT = true,
+	SHADOW_LOAD = true,
 
 	SELECTED_COLOR_RGB = { r = 1.0, g = 1.0, b = 1.0 },
 	SELECTED_COLOR = "Say",
 	CUSTOM_COLOR = { r = 1.0, g = 1.0, b = 1.0 },
 
 	GENERATE_TOTAL_RP3_BUBBLES = true,
-	GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS = true
+	GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS = true,
+
+	FONT_SIZE = 14
 }
+
+local temporaryValue = {}
+
+CategoryId = -1;
 
 function initSettings()
 	if settings == nil then
@@ -31,74 +38,189 @@ function initSettings()
 		settings[key] = value;
 	end
 	Import.settings = settings;
+	ConstructSettingsUI();
+	hooksecurefunc(SettingsPanel, "FinalizeCommit", CommitChanges);
 end
 
-function ConfigureFrameOnRuntime(self, event, ...)
-	--Check if TRP3 is installed and turn off the TRP3 options if it's not there.
-	if TRP3_API == nil then
-		totalRP3Header:SetFontObject("GameFontDisableLarge");
-		totalRP3GenerateOptionLabel:SetFontObject("GameFontDisable");
-		totalRP3GenerateOtherPlayerLabel:SetFontObject("GameFontDisable");
-		totalRP3GenerateCheck:Disable();
-		totalRP3GenerateOtherCheck:Disable();
-		NotInstalledLabel:Show();
+
+
+function CommitChanges()
+	local restartRequired = (temporaryValue.FONT_SIZE ~= nil and settings.FONT_SIZE ~= temporaryValue.FONT_SIZE) or 
+	           (temporaryValue.DRESS_BLIZZ_BUBBLE ~= nil and settings.DRESS_BLIZZ_BUBBLE ~= temporaryValue.DRESS_BLIZZ_BUBBLE);
+
+
+	for key, value in pairs(temporaryValue) do
+		settings[key] = value;
 	end
-	self:RegisterForDrag("LeftButton");
-	self:SetScript("OnDragStart",self.StartMoving);
-	self:SetScript("OnDragStop",self.StopMovingOrSizing);
-	self:SetBackdrop(BACKDROP_DIALOG_32_32)
-	self:OnBackdropLoaded()
-end
-
-function ShowSettingsPanel()
-	if not SettingsPanel:IsVisible() then 
-		SettingsPanel:Show()
-
-		DressBlizzBubbleCheck:SetChecked(settings.get("DRESS_BLIZZ_BUBBLE"));
-		ExtraTextCheck:SetChecked(settings.get("CREATE_BUTTON_EXTRA_TEXT"));
-		SmartColoringCheck:SetChecked(settings.get("SMART_COLORING"));
-		totalRP3GenerateCheck:SetChecked(settings.get("GENERATE_TOTAL_RP3_BUBBLES"));
-		totalRP3GenerateOtherCheck:SetChecked(settings.get("GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS"));
-		
-		TotalRP3_onStart();
-	else
-		CancelSettings();
-	end
-end
-
-function ToggleReloadWarning(self, event, ...)
-	--This function detects if the user has changed the Dress Blizz Bubble setting, which will show a reload required message on changed.
-	if settings.DRESS_BLIZZ_BUBBLE ~= DressBlizzBubbleCheck:GetChecked() then
-		if not UIReloadWarningLabel:IsVisible() then
-			UIReloadWarningLabel:Show();
-			SettingsPanel:SetSize(SettingsPanel:GetWidth(),SettingsPanel:GetHeight()+UIReloadWarningLabel:GetHeight()+5);
-		end
-	else
-		if UIReloadWarningLabel:IsVisible() then
-			UIReloadWarningLabel:Hide();
-			SettingsPanel:SetSize(SettingsPanel:GetWidth(),SettingsPanel:GetHeight()-UIReloadWarningLabel:GetHeight()-5);
-		end
-	end
-end
-
-function SaveSettings(self, event, ...)
-	local reloadRequired = settings.DRESS_BLIZZ_BUBBLE ~= DressBlizzBubbleCheck:GetChecked()
 	
-	settings.DRESS_BLIZZ_BUBBLE = DressBlizzBubbleCheck:GetChecked();
-	settings.GENERATE_TOTAL_RP3_BUBBLES = totalRP3GenerateCheck:GetChecked();
-	settings.GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS = totalRP3GenerateOtherCheck:GetChecked();
-	settings.SMART_COLORING = SmartColoringCheck:GetChecked();
-	settings.CREATE_BUTTON_EXTRA_TEXT = ExtraTextCheck:GetChecked();
-
-	SettingsPanel:Hide();
-	if reloadRequired then
+	if (restartRequired) then
 		ReloadUI()
 	end
+	temporaryValue = {}
 end
 
-function CancelSettings()
-	SettingsPanel:Hide();
+function ConstructSettingsUI() 
+	local category, layout = Settings.RegisterVerticalLayoutCategory("Speaker Bee");
+
+	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("General"));
+	AddGeneralHeader(layout);
+	RegisterFontSize(category);
+	RegisterDressBlizzBubble(category);
+	RegisterCreateButtonExtraText(category);
+	RegisterSmartNameColours(category);
+	RegisterShadowLoad(category);
+	
+	RegisterTotalRP3Settings(layout, category);
+
+	Settings.RegisterAddOnCategory(category)
+
+	CategoryId = category:GetID();
+end
+
+function AddGeneralHeader(layout)
+	local name = "TotalRP3";
+	local data = {name = name};
+	local topInitializer = Settings.CreateElementInitializer("SpeakerBeeGeneralHeader", data);
+	topInitializer = layout:AddInitializer(topInitializer);
+end
+
+function RegisterFontSize(category)
+	local variable = "FONT_SIZE";
+	local name = "Font Size";
+	local tooltip = "Controls the font size of all chat bubbles.";
+	local defaultValue = settings.get("FONT_SIZE");
+	local minValue = 8;
+	local maxValue = 128;
+	local step = 2;
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	setting:SetCommitFlags(Settings.CommitFlag.Apply);
+
+	local callback = function(o, s, value)
+		temporaryValue.FONT_SIZE = value;
+		ToggleRestartRequired();
+	end
+	Settings.SetOnValueChangedCallback(variable, callback);
+	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+
+	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right);
+	Settings.CreateSlider(category, setting, options, tooltip)
+end
+
+function RegisterDressBlizzBubble(category) 
+	local variable = "DRESS_BLIZZ_BUBBLE"
+    local name = "Dress Chat Bubbles"
+    local tooltip = "If checked, this puts the speaking character's name on regular chat bubbles"
+    local defaultValue = settings.get("DRESS_BLIZZ_BUBBLE");
+
+	local callback = function(o, s, value)
+		temporaryValue.DRESS_BLIZZ_BUBBLE = value;
+		ToggleRestartRequired();
+	end
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	setting:SetCommitFlags(Settings.CommitFlag.Apply);
+	Settings.SetOnValueChangedCallback(variable, callback);
+    Settings.CreateCheckBox(category, setting, tooltip);
+end
+
+
+function RegisterCreateButtonExtraText(category) 
+	local variable = "CREATE_BUTTON_EXTRA_TEXT"
+    local name = "Dynamic Create Button"
+    local tooltip = "If checked, the create button text will change to include (target) or (self) when shift or ctrl is held"
+    local defaultValue = settings.get("CREATE_BUTTON_EXTRA_TEXT")
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.CREATE_BUTTON_EXTRA_TEXT = value; end);
+    Settings.CreateCheckBox(category, setting, tooltip);
+end
+
+function RegisterSmartNameColours(category)
+	local variable = "SMART_COLORING"
+    local name = "Smart Name Colouring"
+    local tooltip = "If checked, the colour of the name on custom chat bubbles will automatically select npc or player colours when shift or ctrl is held"
+    local defaultValue = settings.get("SMART_COLORING")
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.SMART_COLORING = value; end);
+    Settings.CreateCheckBox(category, setting, tooltip);
+end
+
+function RegisterShadowLoad(category)
+	local variable = "SHADOW_LOAD"
+	local name = "Load Shadow Frame"
+	local tooltip = "If checked and the addon frame is hidden, the frame will show up as a shadow when the game loads until you mouse over it."
+	local defaultValue = settings.get("SHADOW_LOAD");
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.SHADOW_LOAD = value; end);
+    Settings.CreateCheckBox(category, setting, tooltip);
+end
+function RegisterTotalRP3Settings(layout, category)
+    local totalRP3Installed = TRP3_API ~= nil;
+
+	local function isModifiable()
+		return totalRP3Installed;
+	end
+
+	AddTotalRP3Header(layout, totalRP3Installed)
+	RegisterGenerateTotalRP3BubbleSetting(category, layout, isModifiable);
+end
+
+function AddTotalRP3Header(layout, totalRP3Installed)
+	local headerTemplate = totalRP3Installed and "SettingsListSectionHeaderTemplate" or "TotalRP3SectionHeaderDisabled";
+	local name = "TotalRP3";
+	local data = {name = name};
+	layout:AddInitializer(Settings.CreateElementInitializer(headerTemplate, data));
+end
+
+
+function RegisterGenerateTotalRP3BubbleSetting(category, layout, isModifiable)
+	local variable = "GENERATE_TOTAL_RP3_BUBBLES"
+    local name = "Enable NPC Speech Bubbles"
+    local tooltip = "If checked, a chat bubble is created whenever you use the NPC speech feature of TotalRP3"
+    local defaultValue = settings.get("GENERATE_TOTAL_RP3_BUBBLES");
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.GENERATE_TOTAL_RP3_BUBBLES = value; end);
+    local initializer = Settings.CreateCheckBox(category, setting, tooltip);
+	initializer:AddModifyPredicate(isModifiable);
+
+	RegisterGenerateTotalRP3BubbleForOthersSetting(category, initializer, isModifiable);
+end
+
+function RegisterGenerateTotalRP3BubbleSettingForSelf(category, parent, isModifiable)
+
+end
+
+function RegisterGenerateTotalRP3BubbleForOthersSetting(category, parent, isModifiable)
+	local variable = "GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS"
+    local name = "From other players"
+    local tooltip = "If checked, a chat bubble is created whenever you use the NPC speech feature of TotalRP3"
+    local defaultValue = settings.get("GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS");
+
+	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS = value; end);
+    local initializer = Settings.CreateCheckBox(category, setting, tooltip);
+	initializer:SetParentInitializer(parent, isModifiable);
+end
+
+function ToggleRestartRequired() 
+	if ((temporaryValue.FONT_SIZE ~= nil and temporaryValue.FONT_SIZE ~= settings.FONT_SIZE) or 
+        (temporaryValue.DRESS_BLIZZ_BUBBLE ~= nil and temporaryValue.DRESS_BLIZZ_BUBBLE ~= settings.DRESS_BLIZZ_BUBBLE)) then
+		    SpeakerBeeRestartRequired:Show();
+		else 
+			SpeakerBeeRestartRequired:Hide();
+	end
+end
+
+
+
+function ShowSettingsPanel()
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPEN);
+	SettingsPanel:OpenToCategory(CategoryId);
 end
 
 Import.initSettings = initSettings;
-Import.ShowSettingsPanel = ShowSettingsPanel
+Import.ShowSettingsPanel = ShowSettingsPanel;

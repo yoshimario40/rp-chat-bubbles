@@ -46,14 +46,14 @@ local function printTable(t, depth)
 	end
 end 
 
-local function getChatBubbleText(chatBubble)
+local function getChatBubbleFontString(chatBubble)
 	--9.0.1 put frame data into a child of the bubble. I think this is a part of the backdrop api change. But anyway,
 	--we're just going to assume that the frame data is the first element of the chat bubble table. 
 	chatBubbleFrame = select(1,chatBubble:GetChildren());
 	for i = 1, chatBubbleFrame:GetNumRegions() do
 		local region = select(i, chatBubbleFrame:GetRegions())
 		if region:GetObjectType() == "FontString" then
-			return region:GetText()
+			return region
 		end
 	end
 end 
@@ -69,11 +69,16 @@ local function getNamedPoint(chatBubble,pointName)
 end
 
 local function skinBubble(chatBubble)
-	local message = getChatBubbleText(chatBubble);
+	local fontString = getChatBubbleFontString(chatBubble);
+	local message = fontString:GetText()
 	local name = messageToSender[message]
+	local fontSize = settings.get("FONT_SIZE");
 	if (name == nil) then
 		name = "";
 	end
+
+	local fontPath, _, fontFlags = fontString:GetFont();
+	fontString:SetFont(fontPath, fontSize, fontFlags);
 
 	local NameText = CreateFrame("EditBox","BlizzBoxNameText",chatBubble);
 	NameText:SetFrameStrata("MEDIUM"); --This is the default but better to be explicit
@@ -158,8 +163,9 @@ local function checkBubbles(chatBubbles)
 			if not chatBubble.rpSkinned then
 				skinBubble(chatBubble)
 			else
-				local message = getChatBubbleText(chatBubble)
-				local sender = messageToSender[message]
+				local fontString = getChatBubbleFontString(chatBubble);
+				local message = fontString:GetText();
+				local sender = messageToSender[message];
 				if sender == nil then
 					sender = "";
 				end
@@ -175,16 +181,16 @@ Timer:SetScript("OnUpdate", function(self, elapsed)
 	if self.elapsed > 0.01 then
 		self:Stop();
 		--This returns all chat bubbles created through default Blizz's UI. Custom chat bubbles aren't seen here
-		chatBubbles = C_ChatBubbles:GetAllChatBubbles()
-		checkBubbles(chatBubbles)
+		local chatBubbles = C_ChatBubbles:GetAllChatBubbles();
+		checkBubbles(chatBubbles);
 	end
 end)
 
 local function onChatMessage(_, event, message, sender, ...)
 	local name = GetColoredName(event, message, sender, ...);
-	messageInBubble = message:gsub("|c%w%w%w%w%w%w%w%w(.*)|r","%1"); --Replace colours
+	local messageInBubble = message:gsub("|c%w%w%w%w%w%w%w%w(.*)|r","%1"); --Replace colours
 	messageInBubble = messageInBubble:gsub("|H.*|h%[(.*)%]|h", "%1") --Replace hyperlinks
-	messageInBubble, count = messageInBubble:gsub("{rt[1-8]}","|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%1:0|t"); --Replace raid icons
+	messageInBubble = messageInBubble:gsub("{rt[1-8]}","|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%1:0|t"); --Replace raid icons
 	messageToSender[messageInBubble] = name;
 	--At the time of the chat event, the chat bubble hasn't been created yet. So we'll wait 0.01 seconds before looking for chat bubbles to skin.
 	Timer:Start();

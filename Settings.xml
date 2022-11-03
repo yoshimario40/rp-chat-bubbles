@@ -1,146 +1,65 @@
 <Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
 	<Script file="Settings.lua" />
-	<Frame name="SettingsPanel" hidden="true" parent="UIParent" toplevel="true" movable="true" enableMouse="true" inherits="BackdropTemplate">
-		<Size>
-			<AbsDimension x="546" y="270" />
-		</Size>
-		<Anchors>
-			<Anchor point="CENTER" x="22" y="-24" />
-		</Anchors>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-			<BackgroundInsets>
-				<AbsInset left="11" right="12" top="12" bottom="11" />
-			</BackgroundInsets>
-			<TileSize>
-				<AbsValue val="32" />
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="32" />
-			</EdgeSize>
-		</Backdrop>
+
+	<Frame name="SpeakerBeeGeneralHeader" virtual="true">
+		<Size y="45"/>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString name="Header" inherits="GameFontNormalHuge" text="Settings" justifyH="LEFT">
-					<Size x="80" y="20" />
+				<FontString name="SpeakerBeeGeneralText" inherits="GameFontHighlightLarge" text="General" justifyH="LEFT">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="17" y="-18" />
+						<Anchor point="TOPLEFT" x="7" y="-16"/>
 					</Anchors>
 				</FontString>
-				<FontString name="GeneralHeader" inherits="GameFontNormalLargeLeft" text="General">
-					<Size x="80" y="20" />
+				<FontString name="SpeakerBeeRestartRequired" inherits="GameFontRed" text="UI Reload Required" justifyH="LEFT" hidden="true">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-45" />
-					</Anchors>
-				</FontString>
-				<FontString name="DressBlizzBubbleLabel" inherits="GameFontHighlightLeft" text="Put name on regular chat bubbles?">
-					<Size x="419" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-72" />
-					</Anchors>
-				</FontString>
-				<FontString name="totalRP3Header" inherits="GameFontNormalLarge" text="TotalRP3" justifyH="LEFT">
-					<Size x="80" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-145" />
-					</Anchors>
-				</FontString>
-				<FontString name="totalRP3GenerateOptionLabel" inherits="GameFontHighlight" text="Generate chat bubbles for NPC Speeches?" justifyH="LEFT">
-					<Size x="419" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-172" />
-					</Anchors>
-				</FontString>
-				<FontString name="totalRP3GenerateOtherPlayerLabel" inherits="GameFontHighlight" text="Generate chat bubbles for NPC Speeches by other players?" justifyH="LEFT">
-					<Size x="436" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-194" />
-					</Anchors>
-				</FontString>
-				<FontString name="NotInstalledLabel" inherits="GameFontRed" hidden="true" text="(Not Installed)" justifyH="LEFT">
-					<Size x="100" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" relativeTo="totalRP3Header" relativePoint="TOPRIGHT" x="5" y="0" />
-					</Anchors>
-					<Color r="0.784" g="0.102" b="0.102" />
-				</FontString>
-				<FontString name="UIReloadWarningLabel" inherits="GameFontRed" hidden="true" text="UI Reload Required." justifyH="LEFT">
-					<Size x="299" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-224" />
-					</Anchors>
-				</FontString>
-				<FontString name="ExtraTextLabel" inherits="GameFontHighlightLeft" text="Update &quot;Create&quot; button text when holding ctrl/shift">
-					<Size x="462" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-94" />
-					</Anchors>
-				</FontString>
-				<FontString name="SmartColoringLabel" inherits="GameFontHighlightLeft" text="Auto switch between player/npc colours when creating for target/self">
-					<Size x="462" y="20" />
-					<Anchors>
-						<Anchor point="TOPLEFT" x="25" y="-118" />
+						<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeTo="SpeakerBeeGeneralText" x="8"></Anchor>
 					</Anchors>
 				</FontString>
 			</Layer>
 		</Layers>
-		<Frames>
-			<CheckButton name="totalRP3GenerateCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="493" y="-164" />
-				</Anchors>
-			</CheckButton>
-			<CheckButton name="totalRP3GenerateOtherCheck" inherits="UICheckButtonTemplate" text="CheckButton2">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="493" y="-188" />
-				</Anchors>
-			</CheckButton>
-			<Button name="OkayButton" inherits="UIPanelButtonTemplate" text="Okay">
-				<Size x="253" y="23" />
-				<Anchors>
-					<Anchor point="BOTTOMLEFT" x="17" y="21" />
-				</Anchors>
-				<Scripts>
-					<OnClick function="SaveSettings">
+	</Frame>
 
-					</OnClick>
-				</Scripts>
-			</Button>
-			<Button name="CancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
-				<Size x="247" y="23" />
-				<Anchors>
-					<Anchor point="BOTTOMLEFT" x="276" y="21" />
-				</Anchors>
-				<Scripts>
-					<OnClick function="CancelSettings">
-
-					</OnClick>
-				</Scripts>
-			</Button>
-			<CheckButton name="SmartColoringCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="493" y="-113" />
-				</Anchors>
-			</CheckButton>
-			<CheckButton name="DressBlizzBubbleCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="493" y="-65" />
-				</Anchors>
-				<Scripts>
-					<OnClick function="ToggleReloadWarning">
-
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="ExtraTextCheck" inherits="UICheckButtonTemplate" text="CheckButton1">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="493" y="-89" />
-				</Anchors>
-			</CheckButton>
-		</Frames>
+	<Frame name="SpeakerBeeTRP3GenerateSubheader" mixin="SettingsListElementMixin" virtual="true">
+		<Size x="280" y="26"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Text" inherits="GameFontNormal" justifyH="LEFT" wordwrap="false"/>
+			</Layer>
+		</Layers>
 		<Scripts>
-			<OnLoad function="ConfigureFrameOnRuntime">
-
-			</OnLoad>
+			<OnLoad method="OnLoad"/>
 		</Scripts>
 	</Frame>
+
+	<Frame name="TotalRP3SectionHeader" mixin="SettingsListSectionHeaderMixin" virtual="true">
+		<Size y="45"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString parentKey="Title" inherits="GameFontHighlightLarge" justifyH="LEFT" justifyV="TOP">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="7" y="-16"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Frame name="TotalRP3SectionHeaderDisabled" mixin="SettingsListSectionHeaderMixin" virtual="true">
+		<Size y="45"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="totalRP3Header2" parentKey="Title" inherits="GameFontDisableLarge" text="TotalRP3" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="7" y="-16"/>
+					</Anchors>
+				</FontString>
+				<FontString name="NotInstalledLabel" inherits="GameFontRed" text="(Not Installed)" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="totalRP3Header2" x="5" y="0" />
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+	</Frame>
+
 </Ui>
