@@ -196,6 +196,7 @@ end
 
 --Basically a straight port of target_frame.lua's onTargetChanged()
 function getTargetId()
+	local getUnitID = TRP3_API.utils.str.getUnitID;
 	local getTargetType, getCompanionFullID = TRP3_API.ui.misc.getTargetType, TRP3_API.ui.misc.getCompanionFullID;
 	local TYPE_CHARACTER = TRP3_API.ui.misc.TYPE_CHARACTER;
 	local TYPE_PET = TRP3_API.ui.misc.TYPE_PET;
