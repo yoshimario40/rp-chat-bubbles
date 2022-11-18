@@ -273,6 +273,8 @@ local function createChatBubble(fontSize)
 	editBox:SetScript("OnEnterPressed", function(self) if IsShiftKeyDown() then self:Insert("\n") else self:ClearFocus() end end);
 	editBox:SetScript("OnEscapePressed",clearFocusAndSelection);
 
+	local fontPath, _, fontFlags = editBox:GetFont();
+	editBox:SetFont(fontPath, fontSize, fontFlags);
 	--Apparently, the below code stops the user from being able to change the cursor location
 	--editBox:EnableMouse(true)
 	--editBox:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )
@@ -301,6 +303,7 @@ local function createChatBubble(fontSize)
 	--We use an invisible FontString to measure the length of the text inside the edit box.
 	editBox.stringMeasure = editBox:CreateFontString(nil,"OVERLAY","ChatBubbleFont");
 	editBox.stringMeasure:SetAlpha(0);
+	editBox.stringMeasure:SetFont(fontPath, fontSize, fontFlags);
 	editBox:SetScript("OnTextChanged", function(self)
 	    editBox.stringMeasure:SetText(self:GetText());
 		adjustChatBubbleWidth(newChatBubble);

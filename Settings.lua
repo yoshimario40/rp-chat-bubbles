@@ -91,7 +91,7 @@ function RegisterFontSize(category)
 	local tooltip = "Controls the font size of all chat bubbles.";
 	local defaultValue = settings.get("FONT_SIZE");
 	local minValue = 8;
-	local maxValue = 128;
+	local maxValue = 72;
 	local step = 1;
 
 	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
