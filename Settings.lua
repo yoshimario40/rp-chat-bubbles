@@ -17,7 +17,7 @@ defaultValue = {
 	GENERATE_TOTAL_RP3_BUBBLES = true,
 	GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS = true,
 
-	FONT_SIZE = 14
+	FONT_SIZE = 13
 }
 
 local temporaryValue = {}
@@ -40,14 +40,15 @@ function initSettings()
 	Import.settings = settings;
 	ConstructSettingsUI();
 	hooksecurefunc(SettingsPanel, "FinalizeCommit", CommitChanges);
+	if (settings.get("DRESS_BLIZZ_BUBBLE")) then
+		local fontPath, _, fontFlags = ChatBubbleFont:GetFont();
+		ChatBubbleFont:SetFont(fontPath, settings.get("FONT_SIZE"), fontFlags);
+	end
 end
-
-
 
 function CommitChanges()
 	local restartRequired = (temporaryValue.FONT_SIZE ~= nil and settings.FONT_SIZE ~= temporaryValue.FONT_SIZE) or 
 	           (temporaryValue.DRESS_BLIZZ_BUBBLE ~= nil and settings.DRESS_BLIZZ_BUBBLE ~= temporaryValue.DRESS_BLIZZ_BUBBLE);
-
 
 	for key, value in pairs(temporaryValue) do
 		settings[key] = value;
@@ -91,7 +92,7 @@ function RegisterFontSize(category)
 	local defaultValue = settings.get("FONT_SIZE");
 	local minValue = 8;
 	local maxValue = 128;
-	local step = 2;
+	local step = 1;
 
 	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
 	setting:SetCommitFlags(Settings.CommitFlag.Apply);

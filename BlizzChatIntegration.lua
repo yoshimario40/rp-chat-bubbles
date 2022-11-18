@@ -77,21 +77,13 @@ local function skinBubble(chatBubble)
 		name = "";
 	end
 
-	local fontPath, _, fontFlags = fontString:GetFont();
-	fontString:SetFont(fontPath, fontSize, fontFlags);
-
 	local NameText = CreateFrame("EditBox","BlizzBoxNameText",chatBubble);
 	NameText:SetFrameStrata("MEDIUM"); --This is the default but better to be explicit
-	--NameText:SetMultiLine(true);
 	NameText:SetAutoFocus(false);
 	NameText:EnableMouse(false);
 	NameText:SetSize(700,11);
-	--NameText:SetPoint("CENTER");
 	NameText:SetPoint("BOTTOMLEFT",chatBubble,"TOPLEFT",13,2);
 	NameText:SetFontObject("GameFontNormal");
-	--local tex = NameText:CreateTexture(nil,"ARTWORK");
-	--tex:SetAllPoints()
-	--tex:SetTexture(255,255,255);
 	NameText.stringMeasure = NameText:CreateFontString(nil,"OVERLAY","GameFontNormal");
 
 	local NameBg = CreateFrame("Frame","BlizzBubbleNameBG",NameText);
@@ -100,7 +92,6 @@ local function skinBubble(chatBubble)
 	NameBg:SetWidth(NameText.stringMeasure:GetStringWidth());
 	NameBg:SetFrameStrata("BACKGROUND");
 	
-
 	local midTex = NameBg:CreateTexture("nameBoxBackgroundTex-middle","BACKGROUND");
 	midTex:SetTexture("Interface/CHATFRAME/ChatFrameTab-BGMid.blp");
 	midTex:SetPoint("TOPLEFT",8,0);
@@ -116,7 +107,6 @@ local function skinBubble(chatBubble)
 
 	local relativeTo, relativePoint, xOfs, yOfs = getNamedPoint(chatBubble,"BOTTOMRIGHT");
 	chatBubble.string = relativeTo;
-	--chatBubble.string:SetJustifyH("LEFT");
 	chatBubble.defaultXOfs = xOfs;
 	chatBubble.fixWidth = function(self)
 		local nameWidth = NameText.stringMeasure:GetWidth();
@@ -134,7 +124,7 @@ local function skinBubble(chatBubble)
 			frame:SetPoint("BOTTOMRIGHT",relativeTo,"BOTTOMRIGHT",defaultXOfs+adj,yOfs);
 		else
 			frame:SetPoint("TOPLEFT",relativeTo,"TOPLEFT",-defaultXOfs,-yOfs);
-			frame:SetPoint("BOTTOMRIGHT",relativeTo,relativePoint,defaultXOfs,yOfs);
+			frame:SetPoint("BOTTOMRIGHT",relativeTo,"BOTTOMRIGHT",defaultXOfs,yOfs);
 		end
 		local _, _, newX, newY = getNamedPoint(self,"BOTTOMRIGHT");
 	end
