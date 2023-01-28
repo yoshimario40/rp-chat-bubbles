@@ -45,7 +45,7 @@ local function adjustNameBoxWidth(chatBubble)
 	local nameBox = chatBubble.nameBox;
 	local nameBoxBg = nameBox.background;
 	local strWidth = nameBox.stringMeasure:GetStringWidth();
-	local minWidth = 32;
+	local minWidth = 16;
 	local padding = nameBox.padding.L + nameBox.padding.R;
 	--The max width usually won't be reached because of the character limit on the name box
 	local maxWidth = chatBubble:GetWidth() - padding - nameBox.margin.L
@@ -351,7 +351,7 @@ local function createChatBubble(fontSize)
 	local paddingL = nameBox.padding.L;
 	nameBoxBackground:SetPoint("BOTTOMLEFT",nameBox,"BOTTOMLEFT",-paddingL,-nameBox.margin.D)
 	nameBoxBackground:SetPoint("TOPLEFT",nameBox,"TOPLEFT",-paddingL,nameBox.margin.T + 12);
-	nameBoxBackground:SetWidth(32);
+	nameBoxBackground:SetWidth(16);
 	nameBoxBackground:SetFrameLevel("12");
 	nameBoxBackground:SetScript("OnClick", function(self) nameBox:SetFocus() end);
 	nameBoxBackground:SetScript("OnMouseDown", function(self) newChatBubble:StartMoving() end )

@@ -152,6 +152,7 @@ function getTargetTRP3NameAndColor()
 	if targetID == nil then
 		return nil;
 	end
+
 	local owner, companionID = companionIDToInfo(targetID);
 	local profile = getCompanionInfo(owner, companionID, targetID);
 
