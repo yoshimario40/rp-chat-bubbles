@@ -227,7 +227,7 @@ function SetVisibility(self, visible, init)
 		removeVisibilityScripts(SettingsButton);
 		removeVisibilityScripts(HideButton);
 		removeVisibilityScripts(ColorDropdownButton);
-		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-showButton");
+		HideButtonTexture:SetTexture("Interface/Addons/SpeakerBee/button/UI-showButton");
 	else
 		local showShadow = (not init) or settings.get("SHADOW_LOAD");
 		self:SetAlpha(showShadow and 0.5 or 0);
@@ -236,7 +236,7 @@ function SetVisibility(self, visible, init)
 		addVisibilityScripts(SettingsButton);
 		addVisibilityScripts(HideButton);
 		addVisibilityScripts(ColorDropdownButton);
-		HideButtonTexture:SetTexture("Interface/Addons/RoleplayChatBubbles/button/UI-hideButton");
+		HideButtonTexture:SetTexture("Interface/Addons/SpeakerBee/button/UI-hideButton");
 	end
 end
 
