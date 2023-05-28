@@ -1,7 +1,7 @@
 ## Title: Speaker Bee
 ## Version: 1.0
 ## Author: Christopher Tse
-## Interface: 100007
+## Interface: 100100
 ## OptionalDeps: totalRP3
 ## SavedVariablesPerCharacter: settings
 
