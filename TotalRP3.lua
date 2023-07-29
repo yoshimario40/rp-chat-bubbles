@@ -20,8 +20,8 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 					if message:find(talkType) then
 						local color;
 						local myMessage = message;
-						local normalColor = ColorManager.getChatColorForChannel(talkChannel);
-						local normalColorAsString = normalColor:GetColorCodeStartSequence();
+						local normalColor = TRP3_API.GetChatTypeColor(talkChannel);
+						local normalColorAsString = normalColor:GenerateHexColor();
 						local nameColor;
 
 						--Detect colour alterations. We need to remove it temporarily to remove the start.
@@ -33,8 +33,8 @@ local function makeBubbleForNPCChat(_, event, message, ...)
 						if npcName:sub(1,2) == "|c" and npcName:sub(-2) == "|r" then
 							--If the name is not in the default color scheme, save it to be set later
 							--Otherwise, we'll replace the name color with ChatBubble's default name colour.
-							if npcName:sub(1,10) ~= normalColorAsString then
-								nameColor = Color.static.CreateFromHexa(npcName:sub(1,10));
+							if npcName:sub(3,10) ~= normalColorAsString then
+								nameColor = TRP3_API.CreateColorFromHexMarkup(npcName:sub(1,10));
 							else
 								--Strip out the |c and |r tags so they don't get in the way of SetName()
 								npcName = npcName:sub(11);
@@ -71,8 +71,6 @@ end
 function initTRP3Vars(self)
 	ellyb = TRP3_API.Ellyb;
 	loc = TRP3_API.loc;
-	Color = ellyb.Color;
-	ColorManager = ellyb.ColorManager;
 
 	NPC_TALK_PATTERNS = {
 		[loc.NPC_TALK_SAY_PATTERN] = "MONSTER_SAY",
@@ -125,13 +123,13 @@ function getPlayerTRP3NameAndColor()
 end
 
 function getPlayerNameColor()
-	local GetClassColorByGUID = TRP3_API.utils.color.GetClassColorByGUID;
 	local configShowNameCustomColors = TRP3_API.chat.configShowNameCustomColors;
 	local guid = UnitGUID("player");
 	local player = AddOn_TotalRP3.Player.static.CreateFromGUID(guid)
 
 	if GetCVar("chatClassColorOverride") ~= "1" then
-		characterColor = GetClassColorByGUID(guid);
+		local _, englishClass = GetPlayerInfoByGUID(guid);
+		characterColor = TRP3_API.GetClassDisplayColor(englishClass);
 	end
 
 	if configShowNameCustomColors() then
@@ -152,7 +150,6 @@ function getTargetTRP3NameAndColor()
 	if targetID == nil then
 		return nil;
 	end
-
 	local owner, companionID = companionIDToInfo(targetID);
 	local profile = getCompanionInfo(owner, companionID, targetID);
 
@@ -182,17 +179,14 @@ function getCompanionInfo(owner, companionID, currentTargetId)
 end
 
 function getTargetsNameColor(profile)
-    local Color = TRP3_API.Ellyb.Color;
 	local customColor = profile.data.NH;
 
 	if customColor then
-		customColor = Color(profile.data.NH);
-
-		if AddOn_TotalRP3.Configuration.shouldDisplayIncreasedColorContrast() then
-			customColor:LightenColorUntilItIsReadableOnDarkBackgrounds();
-		end
+		local color = TRP3_API.CreateColorFromHexString(customColor);
+		color = TRP3_API.GenerateReadableColor(color, TRP3_ReadabilityOptions.TextOnBlackBackground);
+		return color;
 	end
-	return customColor;
+	return nil;
 end
 
 --Basically a straight port of target_frame.lua's onTargetChanged()
@@ -214,12 +208,6 @@ function getTargetId()
 	return getCompanionFullID("target", currentTargetType);
 end
 
-
---Import.modules["TotalRP3"] = {
---	name="TotalRP3",
---	onStart = TotalRP3_onStart;
---}
-
 POSSIBLE_CHANNELS = {
 	"CHAT_MSG_SAY", "CHAT_MSG_YELL", "CHAT_MSG_EMOTE", "CHAT_MSG_TEXT_EMOTE",
 	"CHAT_MSG_PARTY", "CHAT_MSG_PARTY_LEADER", "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER",
@@ -228,12 +216,17 @@ POSSIBLE_CHANNELS = {
 
 
 local MODULE_STRUCTURE = {
-	["name"] = "Roleplay Chat Bubbles",
-	["description"] = "Module for integrating TotalRP3's chatframe system with Roleplay Chat Bubbles.",
+	["name"] = "Speaker Bee Integration",
+	["description"] = "Module for integrating TotalRP3's chatframe system with Speaker Bee.",
 	["version"] = 1.000,
-	["id"] = "rp_chatBubbles",
+	--Note: Be careful of changing the id because this module needs to go after the chatframe module in trp3 
+	--Check order of module loading using a print statement in trp3's registerModule method
+	["id"] = "trp3_module_speakerBee",
 	["onStart"] = TotalRP3_onStart,
 	["minVersion"] = 3,
+	["requiredDeps"] = {
+		{ "trp3_chatframes", 1.100 },
+	}
 };
 
 if TRP3_API then
