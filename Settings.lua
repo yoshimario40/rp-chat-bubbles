@@ -22,6 +22,7 @@ defaultValue = {
 
 local temporaryValue = {}
 
+restartRequired = false;
 CategoryId = -1;
 
 function initSettings()
@@ -47,15 +48,13 @@ function initSettings()
 end
 
 function CommitChanges()
-	local restartRequired = (temporaryValue.FONT_SIZE ~= nil and settings.FONT_SIZE ~= temporaryValue.FONT_SIZE) or 
-	           (temporaryValue.DRESS_BLIZZ_BUBBLE ~= nil and settings.DRESS_BLIZZ_BUBBLE ~= temporaryValue.DRESS_BLIZZ_BUBBLE);
-
 	for key, value in pairs(temporaryValue) do
 		settings[key] = value;
 	end
 	
 	if (restartRequired) then
-		ReloadUI()
+		ReloadUI();
+		restartRequired = false;
 	end
 	temporaryValue = {}
 end
@@ -89,17 +88,19 @@ function RegisterFontSize(category)
 	local variable = "FONT_SIZE";
 	local name = "Font Size";
 	local tooltip = "Controls the font size of all chat bubbles.";
-	local defaultValue = settings.get("FONT_SIZE");
+    local defaultValue = defaultValue[variable];
 	local minValue = 8;
 	local maxValue = 72;
 	local step = 1;
-
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	
+    local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue)
 	setting:SetCommitFlags(Settings.CommitFlag.Apply);
 
-	local callback = function(o, s, value)
+	local callback = function(o, setting, value)
 		temporaryValue.FONT_SIZE = value;
-		ToggleRestartRequired();
+		if (setting:IsModified()) then
+			ToggleRestartRequired();
+		end
 	end
 	Settings.SetOnValueChangedCallback(variable, callback);
 	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
@@ -112,51 +113,52 @@ function RegisterDressBlizzBubble(category)
 	local variable = "DRESS_BLIZZ_BUBBLE"
     local name = "Dress Chat Bubbles"
     local tooltip = "If checked, this puts the speaking character's name on regular chat bubbles"
-    local defaultValue = settings.get("DRESS_BLIZZ_BUBBLE");
+    local defaultValue = defaultValue[variable];
 
-	local callback = function(o, s, value)
+	local callback = function(o, setting, value)
 		temporaryValue.DRESS_BLIZZ_BUBBLE = value;
-		ToggleRestartRequired();
+		if (setting:IsModified()) then
+			ToggleRestartRequired();
+		end
 	end
 
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue);
 	setting:SetCommitFlags(Settings.CommitFlag.Apply);
 	Settings.SetOnValueChangedCallback(variable, callback);
-    Settings.CreateCheckBox(category, setting, tooltip);
+    Settings.CreateCheckbox(category, setting, tooltip);
 end
-
 
 function RegisterCreateButtonExtraText(category) 
 	local variable = "CREATE_BUTTON_EXTRA_TEXT"
     local name = "Dynamic Create Button"
     local tooltip = "If checked, the create button text will change to include (target) or (self) when shift or ctrl is held"
-    local defaultValue = settings.get("CREATE_BUTTON_EXTRA_TEXT")
+    local defaultValue = defaultValue[variable];
 
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue);
 	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.CREATE_BUTTON_EXTRA_TEXT = value; end);
-    Settings.CreateCheckBox(category, setting, tooltip);
+    Settings.CreateCheckbox(category, setting, tooltip);
 end
 
 function RegisterSmartNameColours(category)
 	local variable = "SMART_COLORING"
     local name = "Smart Name Colouring"
     local tooltip = "If checked, the colour of the name on custom chat bubbles will automatically select npc or player colours when shift or ctrl is held"
-    local defaultValue = settings.get("SMART_COLORING")
+    local defaultValue = defaultValue[variable];
 
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue);
 	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.SMART_COLORING = value; end);
-    Settings.CreateCheckBox(category, setting, tooltip);
+    Settings.CreateCheckbox(category, setting, tooltip);
 end
 
 function RegisterShadowLoad(category)
 	local variable = "SHADOW_LOAD"
 	local name = "Load Shadow Frame"
 	local tooltip = "If checked and the addon frame is hidden, the frame will show up as a shadow when the game loads until you mouse over it."
-	local defaultValue = settings.get("SHADOW_LOAD");
+    local defaultValue = defaultValue[variable];
 
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue);
 	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.SHADOW_LOAD = value; end);
-    Settings.CreateCheckBox(category, setting, tooltip);
+    Settings.CreateCheckbox(category, setting, tooltip);
 end
 function RegisterTotalRP3Settings(layout, category)
     local totalRP3Installed = TRP3_API ~= nil;
@@ -181,11 +183,11 @@ function RegisterGenerateTotalRP3BubbleSetting(category, layout, isModifiable)
 	local variable = "GENERATE_TOTAL_RP3_BUBBLES"
     local name = "Enable NPC Speech Bubbles"
     local tooltip = "If checked, a chat bubble is created whenever you use the NPC speech feature of TotalRP3"
-    local defaultValue = settings.get("GENERATE_TOTAL_RP3_BUBBLES");
+    local defaultValue = defaultValue[variable];
 
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue);
 	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.GENERATE_TOTAL_RP3_BUBBLES = value; end);
-    local initializer = Settings.CreateCheckBox(category, setting, tooltip);
+    local initializer = Settings.CreateCheckbox(category, setting, tooltip);
 	initializer:AddModifyPredicate(isModifiable);
 
 	RegisterGenerateTotalRP3BubbleForOthersSetting(category, initializer, isModifiable);
@@ -199,24 +201,24 @@ function RegisterGenerateTotalRP3BubbleForOthersSetting(category, parent, isModi
 	local variable = "GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS"
     local name = "From other players"
     local tooltip = "If checked, a chat bubble is created whenever you use the NPC speech feature of TotalRP3"
-    local defaultValue = settings.get("GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS");
+    local defaultValue = defaultValue[variable];
 
-	local setting = Settings.RegisterAddOnSetting(category, name, variable, type(defaultValue), defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, variable, variable, settings, type(defaultValue), name, defaultValue);
 	Settings.SetOnValueChangedCallback(variable, function(o, s, value) temporaryValue.GENERATE_TOTAL_RP3_BUBBLES_FOR_OTHER_PLAYERS = value; end);
-    local initializer = Settings.CreateCheckBox(category, setting, tooltip);
+    local initializer = Settings.CreateCheckbox(category, setting, tooltip);
 	initializer:SetParentInitializer(parent, isModifiable);
 end
 
 function ToggleRestartRequired() 
 	if ((temporaryValue.FONT_SIZE ~= nil and temporaryValue.FONT_SIZE ~= settings.FONT_SIZE) or 
         (temporaryValue.DRESS_BLIZZ_BUBBLE ~= nil and temporaryValue.DRESS_BLIZZ_BUBBLE ~= settings.DRESS_BLIZZ_BUBBLE)) then
+			restartRequired = true;
 		    SpeakerBeeRestartRequired:Show();
 		else 
+			restartRequired = false;
 			SpeakerBeeRestartRequired:Hide();
 	end
 end
-
-
 
 function ShowSettingsPanel()
 	PlaySound(SOUNDKIT.IG_MAINMENU_OPEN);

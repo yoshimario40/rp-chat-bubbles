@@ -1,7 +1,7 @@
 ## Title: Speaker Bee
 ## Version: 1.0
 ## Author: Christopher Tse
-## Interface: 100205
+## Interface: 110002
 ## Notes: Immersive Chat Bubbles
 ## IconTexture: Interface\AddOns\SpeakerBee\logo\Bee.blp
 ## OptionalDeps: totalRP3
